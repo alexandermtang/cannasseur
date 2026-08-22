@@ -63,8 +63,10 @@ const SubmitLogScreen = ({ navigation, route }) => {
     }
 
     setHasError(false);
-    // Home re-fetches on focus, so no forceUpdate param is needed.
-    navigation.navigate('Home');
+    // Reset (not navigate) so LogNewSession/SubmitLog are dropped from the
+    // stack — otherwise Home gets pushed on top and back just walks through
+    // duplicate date-titled screens instead of leaving the log book.
+    navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
   };
 
   return (
