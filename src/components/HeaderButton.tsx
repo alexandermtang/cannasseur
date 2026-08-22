@@ -1,5 +1,9 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+// react-native-gesture-handler's TouchableOpacity, not react-native's — the
+// core one uses the legacy responder system, which flashes/pulses when
+// native-stack's edge-swipe-back gesture (also gesture-handler-driven) claims
+// touch responder status near the header during a push transition.
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
 // react-navigation 2's header had no padding, so every screen nudged its icon
