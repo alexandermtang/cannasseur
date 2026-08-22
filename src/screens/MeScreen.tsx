@@ -19,6 +19,7 @@ export const meScreenOptions = ({
 const MeScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [sessionCount, setSessionCount] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -28,17 +29,22 @@ const MeScreen = () => {
       }
 
       // Email lives on the auth user, not on profiles — single source of truth.
-      const [{ data: profile }, { data: userData }] = await Promise.all([
+      const [{ data: profile }, { data: userData }, { count }] = await Promise.all([
         supabase
           .from('profiles')
           .select('name')
           .eq('id', userId)
           .single(),
-        supabase.auth.getUser()
+        supabase.auth.getUser(),
+        supabase
+          .from('logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
       ]);
 
       setName(profile ? profile.name : '');
       setEmail(userData.user ? userData.user.email || '' : '');
+      setSessionCount(count || 0);
     })();
   }, []);
 
@@ -50,7 +56,10 @@ const MeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{name}</Text>
-      <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
+      <Text style={styles.text}>{email}</Text>
+      <Text style={[styles.text, { marginBottom: 64 }]}>
+        {sessionCount} session{sessionCount === 1 ? '' : 's'} logged
+      </Text>
       <BlackButton onPress={() => logout()} text={'LOG OUT'} />
     </View>
   );
