@@ -77,6 +77,15 @@ const sortLogs = (logs: Log[], type: SortType): Log[] => {
   return sorted;
 };
 
+const searchLogs = (logs: Log[], searchText: string): Log[] => {
+  if (searchText === '') return logs;
+  return logs.filter(
+    log =>
+      log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
+      (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()))
+  );
+};
+
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
@@ -84,6 +93,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [showModal, setShowModal] = useState(false);
   const [sortType, setSortType] = useState<SortType>('mostRecent');
   const [filterText, setFilterText] = useState('MOST RECENT');
+  const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
 
@@ -107,11 +117,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    // Re-apply whatever sort was active — otherwise a refetch (e.g. on focus,
-    // after coming back from ViewLog) silently drops it back to DB order.
-    setFilteredLogs(sortLogs(logs, sortType));
+    // Re-apply whatever search/sort was active — otherwise a refetch (e.g. on
+    // focus, after coming back from ViewLog) silently drops them back to
+    // unfiltered DB order.
+    setFilteredLogs(sortLogs(searchLogs(logs, searchText), sortType));
     setIsLoading(false);
-  }, [sortType]);
+  }, [sortType, searchText]);
 
   useEffect(() => {
     getLogs();
@@ -122,19 +133,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     return unsubscribeFocus;
   }, [navigation, getLogs]);
 
-  const search = (searchText: string) => {
-    if (searchText === '') {
-      setFilteredLogs(allLogs);
-    } else {
-      const nextFilteredLogs = allLogs.reduce<Log[]>((logs, log) => {
-        const isInclude =
-          log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
-          (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()));
-        return isInclude ? [...logs, log] : logs;
-      }, []);
-
-      setFilteredLogs(nextFilteredLogs);
-    }
+  const search = (text: string) => {
+    setSearchText(text);
+    setFilteredLogs(sortLogs(searchLogs(allLogs, text), sortType));
   };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
@@ -158,7 +159,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const sortBy = (type: SortType = 'mostRecent') => {
     setSortType(type);
     setFilterText(filterTextFor(type));
-    const tempLogs = sortLogs(allLogs, type);
+    const tempLogs = sortLogs(searchLogs(allLogs, searchText), type);
     animateSheet(-600, () => {
       setFilteredLogs(tempLogs);
       setShowModal(false);
@@ -182,7 +183,8 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           <TextInput
             style={styles.searchInput}
             placeholder={'Search strain or tag'}
-            onChangeText={searchText => search(searchText)}
+            value={searchText}
+            onChangeText={text => search(text)}
           />
         </View>
         <TouchableOpacity style={styles.filterContainer} onPress={() => showFilterModal()}>
