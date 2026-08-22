@@ -57,11 +57,32 @@ const isMoodField = (type: SortType): type is MoodField =>
 const isMedicalField = (type: SortType): type is MedicalField =>
   (MEDICAL_TYPES as readonly string[]).includes(type);
 
+const filterTextFor = (type: SortType): string => {
+  if (type === 'mostRecent') return 'MOST RECENT';
+  if (type === 'topRated') return 'TOP RATED';
+  if (isMoodField(type)) return `MOOD: ${type.toUpperCase()}`;
+  if (isMedicalField(type)) return `MEDICAL: ${type.toUpperCase()}`;
+  return '';
+};
+
+const sortLogs = (logs: Log[], type: SortType): Log[] => {
+  const sorted = [...logs];
+  if (type === 'mostRecent') {
+    sorted.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+  } else if (type === 'topRated') {
+    sorted.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
+  } else if (isMoodField(type) || isMedicalField(type)) {
+    sorted.sort((a, b) => b[type] - a[type]);
+  }
+  return sorted;
+};
+
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [sortType, setSortType] = useState<SortType>('mostRecent');
   const [filterText, setFilterText] = useState('MOST RECENT');
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
@@ -86,9 +107,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    setFilteredLogs(logs);
+    // Re-apply whatever sort was active — otherwise a refetch (e.g. on focus,
+    // after coming back from ViewLog) silently drops it back to DB order.
+    setFilteredLogs(sortLogs(logs, sortType));
     setIsLoading(false);
-  }, []);
+  }, [sortType]);
 
   useEffect(() => {
     getLogs();
@@ -133,24 +156,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const sortBy = (type: SortType = 'mostRecent') => {
-    const tempLogs = [...allLogs];
-    let nextFilterText = '';
-
-    if (type === 'mostRecent') {
-      tempLogs.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-      nextFilterText = 'MOST RECENT';
-    } else if (type === 'topRated') {
-      tempLogs.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
-      nextFilterText = 'TOP RATED';
-    } else if (isMoodField(type)) {
-      tempLogs.sort((a, b) => b[type] - a[type]);
-      nextFilterText = `MOOD: ${type.toUpperCase()}`;
-    } else if (isMedicalField(type)) {
-      tempLogs.sort((a, b) => b[type] - a[type]);
-      nextFilterText = `MEDICAL: ${type.toUpperCase()}`;
-    }
-
-    setFilterText(nextFilterText);
+    setSortType(type);
+    setFilterText(filterTextFor(type));
+    const tempLogs = sortLogs(allLogs, type);
     animateSheet(-600, () => {
       setFilteredLogs(tempLogs);
       setShowModal(false);
