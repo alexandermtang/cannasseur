@@ -57,12 +57,43 @@ const isMoodField = (type: SortType): type is MoodField =>
 const isMedicalField = (type: SortType): type is MedicalField =>
   (MEDICAL_TYPES as readonly string[]).includes(type);
 
+const filterTextFor = (type: SortType): string => {
+  if (type === 'mostRecent') return 'MOST RECENT';
+  if (type === 'topRated') return 'TOP RATED';
+  if (isMoodField(type)) return `MOOD: ${type.toUpperCase()}`;
+  if (isMedicalField(type)) return `MEDICAL: ${type.toUpperCase()}`;
+  return '';
+};
+
+const sortLogs = (logs: Log[], type: SortType): Log[] => {
+  const sorted = [...logs];
+  if (type === 'mostRecent') {
+    sorted.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+  } else if (type === 'topRated') {
+    sorted.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
+  } else if (isMoodField(type) || isMedicalField(type)) {
+    sorted.sort((a, b) => b[type] - a[type]);
+  }
+  return sorted;
+};
+
+const searchLogs = (logs: Log[], searchText: string): Log[] => {
+  if (searchText === '') return logs;
+  return logs.filter(
+    log =>
+      log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
+      (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()))
+  );
+};
+
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [sortType, setSortType] = useState<SortType>('mostRecent');
   const [filterText, setFilterText] = useState('MOST RECENT');
+  const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
 
@@ -86,9 +117,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    setFilteredLogs(logs);
+    // Re-apply whatever search/sort was active — otherwise a refetch (e.g. on
+    // focus, after coming back from ViewLog) silently drops them back to
+    // unfiltered DB order.
+    setFilteredLogs(sortLogs(searchLogs(logs, searchText), sortType));
     setIsLoading(false);
-  }, []);
+  }, [sortType, searchText]);
 
   useEffect(() => {
     getLogs();
@@ -99,19 +133,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     return unsubscribeFocus;
   }, [navigation, getLogs]);
 
-  const search = (searchText: string) => {
-    if (searchText === '') {
-      setFilteredLogs(allLogs);
-    } else {
-      const nextFilteredLogs = allLogs.reduce<Log[]>((logs, log) => {
-        const isInclude =
-          log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
-          (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()));
-        return isInclude ? [...logs, log] : logs;
-      }, []);
-
-      setFilteredLogs(nextFilteredLogs);
-    }
+  const search = (text: string) => {
+    setSearchText(text);
+    setFilteredLogs(sortLogs(searchLogs(allLogs, text), sortType));
   };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
@@ -133,24 +157,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const sortBy = (type: SortType = 'mostRecent') => {
-    const tempLogs = [...allLogs];
-    let nextFilterText = '';
-
-    if (type === 'mostRecent') {
-      tempLogs.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-      nextFilterText = 'MOST RECENT';
-    } else if (type === 'topRated') {
-      tempLogs.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
-      nextFilterText = 'TOP RATED';
-    } else if (isMoodField(type)) {
-      tempLogs.sort((a, b) => b[type] - a[type]);
-      nextFilterText = `MOOD: ${type.toUpperCase()}`;
-    } else if (isMedicalField(type)) {
-      tempLogs.sort((a, b) => b[type] - a[type]);
-      nextFilterText = `MEDICAL: ${type.toUpperCase()}`;
-    }
-
-    setFilterText(nextFilterText);
+    setSortType(type);
+    setFilterText(filterTextFor(type));
+    const tempLogs = sortLogs(searchLogs(allLogs, searchText), type);
     animateSheet(-600, () => {
       setFilteredLogs(tempLogs);
       setShowModal(false);
@@ -174,7 +183,8 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           <TextInput
             style={styles.searchInput}
             placeholder={'Search strain or tag'}
-            onChangeText={searchText => search(searchText)}
+            value={searchText}
+            onChangeText={text => search(text)}
           />
         </View>
         <TouchableOpacity style={styles.filterContainer} onPress={() => showFilterModal()}>
