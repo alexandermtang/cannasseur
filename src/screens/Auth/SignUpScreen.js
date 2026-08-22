@@ -1,39 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { supabase } from '../../lib/supabase';
 
-class SignUpScreen extends React.Component {
-  state = {
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    isOver18: false,
+const SignUpScreen = ({ navigation }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isOver18, setIsOver18] = useState(false);
 
-    error: '',
-    notice: '',
-    isLoading: false
-  };
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async onSignUp() {
-    const { name, email, password, confirmPassword, isOver18 } = this.state;
+  const onSignUp = async () => {
     if (name === '') {
-      return this.setState({ error: 'Missing name.', isLoading: false });
+      setError('Missing name.');
+      setIsLoading(false);
+      return;
     }
 
     if (email === '') {
-      return this.setState({ error: 'Missing email.', isLoading: false });
+      setError('Missing email.');
+      setIsLoading(false);
+      return;
     }
 
     if (password !== confirmPassword) {
-      return this.setState({ error: 'Passwords must match.', isLoading: false });
+      setError('Passwords must match.');
+      setIsLoading(false);
+      return;
     }
 
     if (!isOver18) {
-      return this.setState({ error: 'Please verify your age.', isLoading: false });
+      setError('Please verify your age.');
+      setIsLoading(false);
+      return;
     }
 
     // The `name` lands in raw_user_meta_data; the on_auth_user_created trigger
@@ -45,88 +50,102 @@ class SignUpScreen extends React.Component {
     });
 
     if (error) {
-      return this.setState({ error: error.message, isLoading: false });
+      setError(error.message);
+      setIsLoading(false);
+      return;
     }
 
     if (!data.session) {
       // Email confirmation is on for this project, so no session exists yet.
       // Without this the screen would silently do nothing.
-      return this.setState({
-        notice: 'Check your email to confirm your account, then log in.',
-        isLoading: false
-      });
+      setNotice('Check your email to confirm your account, then log in.');
+      setIsLoading(false);
+      return;
     }
 
     // Session exists: onAuthStateChange in App.js swaps the stack.
-    this.setState({ isLoading: false });
-  }
+    setIsLoading(false);
+  };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <Spinner
-          visible={this.state.isLoading}
-          textContent={'Creating account...'}
-          textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
+  return (
+    <View style={styles.container}>
+      <Spinner
+        visible={isLoading}
+        textContent={'Creating account...'}
+        textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={'name'}
+        onChangeText={name => {
+          setName(name);
+          setError('');
+        }}
+        autoCapitalize={'none'}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={'email'}
+        onChangeText={email => {
+          setEmail(email);
+          setError('');
+        }}
+        autoCapitalize={'none'}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={'password'}
+        onChangeText={password => {
+          setPassword(password);
+          setError('');
+        }}
+        secureTextEntry
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={'confirm password'}
+        onChangeText={confirmPassword => {
+          setConfirmPassword(confirmPassword);
+          setError('');
+        }}
+        secureTextEntry
+      />
+      <View style={styles.isOver18Container}>
+        <Checkbox
+          value={isOver18}
+          onValueChange={() => {
+            setIsOver18(!isOver18);
+            setError('');
+          }}
+          color={isOver18 ? '#000' : undefined}
+          style={{ marginRight: 16, width: 28, height: 28 }}
         />
-        <TextInput
-          style={styles.input}
-          placeholder={'name'}
-          onChangeText={name => this.setState({ name, error: '' })}
-          autoCapitalize={'none'}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder={'email'}
-          onChangeText={email => this.setState({ email, error: '' })}
-          autoCapitalize={'none'}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder={'password'}
-          onChangeText={password => this.setState({ password, error: '' })}
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          placeholder={'confirm password'}
-          onChangeText={confirmPassword => this.setState({ confirmPassword, error: '' })}
-          secureTextEntry
-        />
-        <View style={styles.isOver18Container}>
-          <Checkbox
-            value={this.state.isOver18}
-            onValueChange={() => this.setState({ isOver18: !this.state.isOver18, error: '' })}
-            color={this.state.isOver18 ? '#000' : undefined}
-            style={{ marginRight: 16, width: 28, height: 28 }}
-          />
-          <TouchableOpacity
-            onPress={() => this.setState({ isOver18: !this.state.isOver18, error: '' })}
-          >
-            <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>I am over the age of 21.</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.error}>{this.state.error}</Text>
-        {this.state.notice !== '' && <Text style={styles.notice}>{this.state.notice}</Text>}
         <TouchableOpacity
-          style={[styles.button, styles.signUpButton]}
           onPress={() => {
-            this.setState({ isLoading: true });
-            this.onSignUp();
+            setIsOver18(!isOver18);
+            setError('');
           }}
         >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>CREATE ACCOUNT</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { marginTop: 80 }]}
-          onPress={() => this.props.navigation.goBack()}
-        >
-          <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
+          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>I am over the age of 21.</Text>
         </TouchableOpacity>
       </View>
-    );
-  }
-}
+      <Text style={styles.error}>{error}</Text>
+      {notice !== '' && <Text style={styles.notice}>{notice}</Text>}
+      <TouchableOpacity
+        style={[styles.button, styles.signUpButton]}
+        onPress={() => {
+          setIsLoading(true);
+          onSignUp();
+        }}
+      >
+        <Text style={[styles.buttonText, { color: '#fff' }]}>CREATE ACCOUNT</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, { marginTop: 80 }]} onPress={() => navigation.goBack()}>
+        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

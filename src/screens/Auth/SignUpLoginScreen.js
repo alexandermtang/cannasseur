@@ -1,34 +1,30 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-class SignUpLoginScreen extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
-        <Text style={styles.title}>cannasseur</Text>
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#000', marginTop: 32 }]}
-          onPress={() => this.props.navigation.navigate('SignUp')}
-        >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>SIGN UP</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { marginTop: 16 }]}
-          onPress={() => this.props.navigation.navigate('Login')}
-        >
-          <Text style={styles.buttonText}>LOG IN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.forgotPasswordButton, { marginTop: 120 }]}
-          onPress={() => this.props.navigation.navigate('ForgotPassword')}
-        >
-          <Text style={styles.buttonText}>FORGOT PASSWORD?</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+const SignUpLoginScreen = ({ navigation }) => (
+  <View style={styles.container}>
+    <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+    <Text style={styles.title}>cannasseur</Text>
+    <TouchableOpacity
+      style={[styles.button, { backgroundColor: '#000', marginTop: 32 }]}
+      onPress={() => navigation.navigate('SignUp')}
+    >
+      <Text style={[styles.buttonText, { color: '#fff' }]}>SIGN UP</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.button, { marginTop: 16 }]}
+      onPress={() => navigation.navigate('Login')}
+    >
+      <Text style={styles.buttonText}>LOG IN</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.forgotPasswordButton, { marginTop: 120 }]}
+      onPress={() => navigation.navigate('ForgotPassword')}
+    >
+      <Text style={styles.buttonText}>FORGOT PASSWORD?</Text>
+    </TouchableOpacity>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

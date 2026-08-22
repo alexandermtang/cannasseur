@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Animated,
   ActivityIndicator,
@@ -27,18 +27,16 @@ export const homeScreenOptions = ({ navigation }) => ({
   )
 });
 
-class HomeScreen extends React.Component {
-  state = {
-    allLogs: [],
-    filteredLogs: [],
-    isLoading: true,
-    showModal: false,
-    filterText: 'MOST RECENT',
-    bottomAnim: new Animated.Value(-600),
-    refreshing: false
-  };
+const HomeScreen = ({ navigation }) => {
+  const [allLogs, setAllLogs] = useState([]);
+  const [filteredLogs, setFilteredLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [filterText, setFilterText] = useState('MOST RECENT');
+  const [refreshing, setRefreshing] = useState(false);
+  const bottomAnim = useRef(new Animated.Value(-600)).current;
 
-  async getLogs() {
+  const getLogs = useCallback(async () => {
     const userId = await currentUserId();
     if (!userId) {
       return;
@@ -52,205 +50,196 @@ class HomeScreen extends React.Component {
 
     if (error) {
       console.error(error);
-      return this.setState({ isLoading: false });
+      setIsLoading(false);
+      return;
     }
 
-    const allLogs = data.map(fromRow);
-    this.setState({ allLogs, filteredLogs: allLogs, isLoading: false });
-  }
+    const logs = data.map(fromRow);
+    setAllLogs(logs);
+    setFilteredLogs(logs);
+    setIsLoading(false);
+  }, []);
 
-  componentDidMount() {
-    this.getLogs();
+  useEffect(() => {
+    getLogs();
 
     // Replaces componentWillReceiveProps (removed in React 19) and the
     // { forceUpdate: true } navigation param it keyed off.
-    this.unsubscribeFocus = this.props.navigation.addListener('focus', () => this.getLogs());
-  }
+    const unsubscribeFocus = navigation.addListener('focus', () => getLogs());
+    return unsubscribeFocus;
+  }, [navigation, getLogs]);
 
-  componentWillUnmount() {
-    if (this.unsubscribeFocus) {
-      this.unsubscribeFocus();
-    }
-  }
-
-  search(searchText) {
+  const search = searchText => {
     if (searchText === '') {
-      this.setState({ filteredLogs: this.state.allLogs });
+      setFilteredLogs(allLogs);
     } else {
-      const filteredLogs = this.state.allLogs.reduce((logs, log) => {
+      const nextFilteredLogs = allLogs.reduce((logs, log) => {
         const isInclude =
           log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
           (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()));
         return isInclude ? [...logs, log] : logs;
       }, []);
 
-      this.setState({ filteredLogs });
+      setFilteredLogs(nextFilteredLogs);
     }
-  }
+  };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
-  animateSheet(toValue, onComplete) {
-    Animated.timing(this.state.bottomAnim, {
+  const animateSheet = (toValue, onComplete) => {
+    Animated.timing(bottomAnim, {
       toValue,
       duration: 250,
       useNativeDriver: false
     }).start(onComplete);
-  }
+  };
 
-  showModal() {
-    this.animateSheet(0);
-    this.setState({ showModal: true });
-  }
+  const showFilterModal = () => {
+    animateSheet(0);
+    setShowModal(true);
+  };
 
-  hideModal() {
-    this.animateSheet(-600, () => this.setState({ showModal: false }));
-  }
+  const hideModal = () => {
+    animateSheet(-600, () => setShowModal(false));
+  };
 
-  sortBy(type = 'mostRecent') {
-    const tempLogs = [...this.state.allLogs];
-    let filterText = '';
+  const sortBy = (type = 'mostRecent') => {
+    const tempLogs = [...allLogs];
+    let nextFilterText = '';
 
     if (type === 'mostRecent') {
       tempLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-      filterText = 'MOST RECENT';
+      nextFilterText = 'MOST RECENT';
     } else if (type === 'topRated') {
       tempLogs.sort((a, b) => b.finalRating - a.finalRating);
-      filterText = 'TOP RATED';
+      nextFilterText = 'TOP RATED';
     } else if (['happy', 'creative', 'active', 'relaxed', 'sleepy'].includes(type)) {
       tempLogs.sort((a, b) => b[type] - a[type]);
-      filterText = `MOOD: ${type.toUpperCase()}`;
+      nextFilterText = `MOOD: ${type.toUpperCase()}`;
     } else if (['anxiety', 'migraines', 'depression', 'pain', 'insomnia'].includes(type)) {
       tempLogs.sort((a, b) => b[type] - a[type]);
-      filterText = `MEDICAL: ${type.toUpperCase()}`;
+      nextFilterText = `MEDICAL: ${type.toUpperCase()}`;
     }
 
-    this.setState({ filterText });
-    this.animateSheet(-600, () => {
-      this.setState({ filteredLogs: tempLogs, showModal: false });
+    setFilterText(nextFilterText);
+    animateSheet(-600, () => {
+      setFilteredLogs(tempLogs);
+      setShowModal(false);
     });
-  }
+  };
 
-  async onRefresh() {
-    await this.getLogs();
-    this.setState({ refreshing: false });
-  }
+  const onRefresh = async () => {
+    await getLogs();
+    setRefreshing(false);
+  };
 
-  render() {
-    const strainsSet = new Set();
-    this.state.allLogs.forEach(log => strainsSet.add(log.strain));
-    const numStrains = strainsSet.size;
+  const strainsSet = new Set();
+  allLogs.forEach(log => strainsSet.add(log.strain));
+  const numStrains = strainsSet.size;
 
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <View>
-            <Ionicons style={styles.searchIcon} name={'search'} size={32} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={'Search strain or tag'}
-              onChangeText={searchText => this.search(searchText)}
-            />
-          </View>
-          <TouchableOpacity style={styles.filterContainer} onPress={() => this.showModal()}>
-            <Ionicons style={styles.filterIcon} name={'filter'} size={32} />
-            <Text style={styles.filterText}>{this.state.filterText}</Text>
-          </TouchableOpacity>
-        </View>
-        {this.state.isLoading ? (
-          <ActivityIndicator size="large" color="#9b9b9b" />
-        ) : numStrains === 0 ? (
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>NO LOGS</Text>
-          </View>
-        ) : (
-          <FlatList
-            style={styles.logsContainer}
-            data={this.state.filteredLogs}
-            keyExtractor={item => item.id}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={() => {
-                  this.setState({ refreshing: true });
-                  this.onRefresh();
-                }}
-              />
-            }
-            renderItem={({ item }) => (
-              <ListItem
-                item={item}
-                onPress={() => {
-                  this.props.navigation.push('ViewLog', { log: item });
-                }}
-                onPressDelete={async () => {
-                  const { error } = await supabase
-                    .from('logs')
-                    .delete()
-                    .eq('id', item.id);
-                  if (error) {
-                    return console.error(error);
-                  }
-                  await this.getLogs();
-                }}
-              />
-            )}
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <View>
+          <Ionicons style={styles.searchIcon} name={'search'} size={32} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={'Search strain or tag'}
+            onChangeText={searchText => search(searchText)}
           />
-        )}
-        <View style={styles.footerContainer}>
-          <BlackButton
-            onPress={() => this.props.navigation.navigate('LogNewSession')}
-            text={'LOG NEW SESSION'}
-          />
-          <View style={styles.strainsContainer}>
-            <Text style={styles.numStrains}>{numStrains}</Text>
-            <Text style={styles.strainsRecorded}>
-              STRAIN
-              {numStrains === 1 ? '' : 'S'} RECORDED
-            </Text>
-          </View>
         </View>
-        {this.state.showModal && (
-          <View style={styles.modal}>
-            <TouchableHighlight style={styles.top} onPress={() => this.hideModal()}>
-              <View />
-            </TouchableHighlight>
-            <Animated.View style={[styles.bottom, { bottom: this.state.bottomAnim }]}>
-              <View style={styles.modalHeaderContainer}>
-                <Ionicons
-                  style={styles.closeIcon}
-                  name={'close'}
-                  size={32}
-                  onPress={() => this.hideModal()}
-                />
-                <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
-              </View>
-              <ScrollView style={{ paddingBottom: 56 }}>
-                <FilterButton onPress={() => this.sortBy('mostRecent')} text={'MOST RECENT'} />
-                <FilterButton onPress={() => this.sortBy('topRated')} text={'TOP RATED'} />
-                <FilterButton onPress={() => this.sortBy('happy')} text={'MOOD: HAPPY'} />
-                <FilterButton onPress={() => this.sortBy('creative')} text={'MOOD: CREATIVE'} />
-                <FilterButton onPress={() => this.sortBy('active')} text={'MOOD: ACTIVE'} />
-                <FilterButton onPress={() => this.sortBy('relaxed')} text={'MOOD: RELAXED'} />
-                <FilterButton onPress={() => this.sortBy('sleepy')} text={'MOOD: SLEEPY'} />
-                <FilterButton onPress={() => this.sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
-                <FilterButton
-                  onPress={() => this.sortBy('migraines')}
-                  text={'MEDICAL: MIGRAINES'}
-                />
-                <FilterButton
-                  onPress={() => this.sortBy('depression')}
-                  text={'MEDICAL: DEPRESSION'}
-                />
-                <FilterButton onPress={() => this.sortBy('pain')} text={'MEDICAL: PAIN'} />
-                <FilterButton onPress={() => this.sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
-              </ScrollView>
-            </Animated.View>
-          </View>
-        )}
+        <TouchableOpacity style={styles.filterContainer} onPress={() => showFilterModal()}>
+          <Ionicons style={styles.filterIcon} name={'filter'} size={32} />
+          <Text style={styles.filterText}>{filterText}</Text>
+        </TouchableOpacity>
       </View>
-    );
-  }
-}
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#9b9b9b" />
+      ) : numStrains === 0 ? (
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>NO LOGS</Text>
+        </View>
+      ) : (
+        <FlatList
+          style={styles.logsContainer}
+          data={filteredLogs}
+          keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                onRefresh();
+              }}
+            />
+          }
+          renderItem={({ item }) => (
+            <ListItem
+              item={item}
+              onPress={() => {
+                navigation.push('ViewLog', { log: item });
+              }}
+              onPressDelete={async () => {
+                const { error } = await supabase
+                  .from('logs')
+                  .delete()
+                  .eq('id', item.id);
+                if (error) {
+                  return console.error(error);
+                }
+                await getLogs();
+              }}
+            />
+          )}
+        />
+      )}
+      <View style={styles.footerContainer}>
+        <BlackButton
+          onPress={() => navigation.navigate('LogNewSession')}
+          text={'LOG NEW SESSION'}
+        />
+        <View style={styles.strainsContainer}>
+          <Text style={styles.numStrains}>{numStrains}</Text>
+          <Text style={styles.strainsRecorded}>
+            STRAIN
+            {numStrains === 1 ? '' : 'S'} RECORDED
+          </Text>
+        </View>
+      </View>
+      {showModal && (
+        <View style={styles.modal}>
+          <TouchableHighlight style={styles.top} onPress={() => hideModal()}>
+            <View />
+          </TouchableHighlight>
+          <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
+            <View style={styles.modalHeaderContainer}>
+              <Ionicons
+                style={styles.closeIcon}
+                name={'close'}
+                size={32}
+                onPress={() => hideModal()}
+              />
+              <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
+            </View>
+            <ScrollView style={{ paddingBottom: 56 }}>
+              <FilterButton onPress={() => sortBy('mostRecent')} text={'MOST RECENT'} />
+              <FilterButton onPress={() => sortBy('topRated')} text={'TOP RATED'} />
+              <FilterButton onPress={() => sortBy('happy')} text={'MOOD: HAPPY'} />
+              <FilterButton onPress={() => sortBy('creative')} text={'MOOD: CREATIVE'} />
+              <FilterButton onPress={() => sortBy('active')} text={'MOOD: ACTIVE'} />
+              <FilterButton onPress={() => sortBy('relaxed')} text={'MOOD: RELAXED'} />
+              <FilterButton onPress={() => sortBy('sleepy')} text={'MOOD: SLEEPY'} />
+              <FilterButton onPress={() => sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
+              <FilterButton onPress={() => sortBy('migraines')} text={'MEDICAL: MIGRAINES'} />
+              <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
+              <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
+              <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
+            </ScrollView>
+          </Animated.View>
+        </View>
+      )}
+    </View>
+  );
+};
 
 const FilterButton = ({ onPress, text }) => (
   <TouchableOpacity

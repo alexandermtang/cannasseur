@@ -1,65 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { supabase } from '../../lib/supabase';
 
-class ForgotPasswordScreen extends React.Component {
-  state = {
-    email: '',
-    error: '',
-    isLoading: false
-  };
+const ForgotPasswordScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async onResetPassword() {
-    const { email } = this.state;
+  const onResetPassword = async () => {
     if (email === '') {
-      return this.setState({ error: 'Missing email.', isLoading: false });
+      setError('Missing email.');
+      setIsLoading(false);
+      return;
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email);
 
     if (error) {
-      return this.setState({ error: 'Invalid email.', isLoading: false });
+      setError('Invalid email.');
+      setIsLoading(false);
+      return;
     }
 
-    this.setState({ isLoading: false });
-    this.props.navigation.goBack();
-  }
+    setIsLoading(false);
+    navigation.goBack();
+  };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <Spinner
-          visible={this.state.isLoading}
-          textContent={'Sending reset password email...'}
-          textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
-        />
-        <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
-        <Text style={styles.title}>cannasseur</Text>
-        <TextInput
-          autoCapitalize={'none'}
-          placeholder={'email'}
-          onChangeText={email => this.setState({ email, error: '' })}
-          style={styles.input}
-        />
-        <Text style={styles.error}>{this.state.error}</Text>
-        <TouchableOpacity
-          style={styles.resetPasswordButton}
-          onPress={() => {
-            this.setState({ isLoading: true });
-            this.onResetPassword();
-          }}
-        >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>RESET PASSWORD</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack()}>
-          <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+  return (
+    <View style={styles.container}>
+      <Spinner
+        visible={isLoading}
+        textContent={'Sending reset password email...'}
+        textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
+      />
+      <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+      <Text style={styles.title}>cannasseur</Text>
+      <TextInput
+        autoCapitalize={'none'}
+        placeholder={'email'}
+        onChangeText={email => {
+          setEmail(email);
+          setError('');
+        }}
+        style={styles.input}
+      />
+      <Text style={styles.error}>{error}</Text>
+      <TouchableOpacity
+        style={styles.resetPasswordButton}
+        onPress={() => {
+          setIsLoading(true);
+          onResetPassword();
+        }}
+      >
+        <Text style={[styles.buttonText, { color: '#fff' }]}>RESET PASSWORD</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

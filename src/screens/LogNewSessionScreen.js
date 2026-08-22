@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, TextInput, StyleSheet, ScrollView } from 'react-native';
 import moment from 'moment';
 import Dialog from 'react-native-dialog';
@@ -17,71 +17,65 @@ export const logNewSessionScreenOptions = ({ navigation }) => ({
   )
 });
 
-class LogNewSessionScreen extends React.Component {
-  state = {
-    strain: '',
-    type: 'Flower', // or 'Concentrate'
+const LogNewSessionScreen = ({ navigation, route }) => {
+  const log = (route.params && route.params.log) || null;
 
-    happy: 0,
-    creative: 0,
-    active: 0,
-    relaxed: 0,
-    sleepy: 0,
+  const [strain, setStrain] = useState(log ? log.strain : '');
+  const [type, setType] = useState(log ? log.type : 'Flower'); // or 'Concentrate'
 
-    anxiety: 0,
-    migraines: 0,
-    depression: 0,
-    pain: 0,
-    insomnia: 0,
+  const [happy, setHappy] = useState(log ? log.happy : 0);
+  const [creative, setCreative] = useState(log ? log.creative : 0);
+  const [active, setActive] = useState(log ? log.active : 0);
+  const [relaxed, setRelaxed] = useState(log ? log.relaxed : 0);
+  const [sleepy, setSleepy] = useState(log ? log.sleepy : 0);
 
-    tags: [],
-    tagOptions: [],
-    dialogVisible: false,
-    newTag: '',
-    hasErrors: false,
+  const [anxiety, setAnxiety] = useState(log ? log.anxiety : 0);
+  const [migraines, setMigraines] = useState(log ? log.migraines : 0);
+  const [depression, setDepression] = useState(log ? log.depression : 0);
+  const [pain, setPain] = useState(log ? log.pain : 0);
+  const [insomnia, setInsomnia] = useState(log ? log.insomnia : 0);
 
-    ratingsType: 'mood' // or 'medical'
+  const [tags, setTags] = useState(log ? log.tags : []);
+  const [tagOptions, setTagOptions] = useState([]);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const [hasErrors, setHasErrors] = useState(false);
+
+  const [ratingsType, setRatingsType] = useState('mood'); // or 'medical'
+
+  useEffect(() => {
+    (async () => {
+      const userId = await currentUserId();
+      if (!userId) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('tags')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        return console.error(error);
+      }
+
+      // A profile with no tags yet gets the original starter set.
+      const nextTagOptions = data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
+      setTagOptions(nextTagOptions);
+    })();
+  }, []);
+
+  const toggleTag = tag => {
+    const newTags = tags.indexOf(tag) === -1 ? [...tags, tag] : tags.filter(t => t !== tag);
+    setTags(newTags);
   };
 
-  async componentDidMount() {
-    const log = (this.props.route.params && this.props.route.params.log) || null;
-    if (log) {
-      this.setState({ ...log });
-    }
-
-    const userId = await currentUserId();
-    if (!userId) {
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('tags')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      return console.error(error);
-    }
-
-    // A profile with no tags yet gets the original starter set.
-    const tagOptions = data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
-    this.setState({ tagOptions });
-  }
-
-  toggleTag(tag) {
-    const { tags } = this.state;
-    const newTags = tags.indexOf(tag) === -1 ? [...tags, tag] : tags.filter(t => t !== tag);
-    this.setState({ tags: newTags });
-  }
-
-  isComplete() {
-    return this.state.strain !== '';
-  }
+  const isComplete = () => strain !== '';
 
   // Takes the tags explicitly: callers used to fire this straight after
   // setState and read back this.state, which races with React's batching.
-  async updateTags(tagOptions) {
+  const updateTags = async tagOptions => {
     const userId = await currentUserId();
     if (!userId) {
       return;
@@ -95,217 +89,183 @@ class LogNewSessionScreen extends React.Component {
     if (error) {
       console.error(error);
     }
-  }
+  };
 
-  render() {
-    return (
-      <ScrollView style={styles.container}>
-        <View style={styles.nameOfStrainContainer}>
-          <Text style={[styles.nameOfStrain, this.state.hasErrors ? styles.error : null]}>
-            NAME OF STRAIN
-            {this.state.hasErrors ? '*' : ''}
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.nameOfStrainContainer}>
+        <Text style={[styles.nameOfStrain, hasErrors ? styles.error : null]}>
+          NAME OF STRAIN
+          {hasErrors ? '*' : ''}
+        </Text>
+        <TextInput
+          style={styles.strainInput}
+          placeholder={'Pineapple Express'}
+          onChangeText={strain => setStrain(strain)}
+          value={strain}
+        />
+      </View>
+      <View style={styles.typeContainer}>
+        <Text style={styles.typeText}>TYPE</Text>
+        <TouchableOpacity onPress={() => setType('Flower')}>
+          <Text style={[styles.type, { color: type === 'Flower' ? '#000' : '#9B9B9B' }]}>
+            Flower
           </Text>
-          <TextInput
-            style={styles.strainInput}
-            placeholder={'Pineapple Express'}
-            onChangeText={strain => this.setState({ strain })}
-            value={this.state.strain}
-          />
-        </View>
-        <View style={styles.typeContainer}>
-          <Text style={styles.typeText}>TYPE</Text>
-          <TouchableOpacity onPress={() => this.setState({ type: 'Flower' })}>
-            <Text
-              style={[styles.type, { color: this.state.type === 'Flower' ? '#000' : '#9B9B9B' }]}
-            >
-              Flower
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.setState({ type: 'Concentrate' })}>
-            <Text
-              style={[
-                styles.type,
-                { color: this.state.type === 'Concentrate' ? '#000' : '#9B9B9B' }
-              ]}
-            >
-              Concentrate
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setType('Concentrate')}>
+          <Text style={[styles.type, { color: type === 'Concentrate' ? '#000' : '#9B9B9B' }]}>
+            Concentrate
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.ratingsTypeContainer}>
-          <TouchableOpacity
-            style={styles.half}
-            onPress={() => {
-              this.setState({ ratingsType: 'mood' });
-            }}
-          >
-            <Text
-              style={[
-                styles.label,
-                { color: this.state.ratingsType === 'mood' ? '#000' : '#9B9B9B' }
-              ]}
-            >
-              MOOD
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.half}
-            onPress={() => {
-              this.setState({ ratingsType: 'medical' });
-            }}
-          >
-            <Text
-              style={[
-                styles.label,
-                { color: this.state.ratingsType === 'medical' ? '#000' : '#9B9B9B' }
-              ]}
-            >
-              MEDICAL
-            </Text>
-          </TouchableOpacity>
+      <View style={styles.ratingsTypeContainer}>
+        <TouchableOpacity
+          style={styles.half}
+          onPress={() => {
+            setRatingsType('mood');
+          }}
+        >
+          <Text style={[styles.label, { color: ratingsType === 'mood' ? '#000' : '#9B9B9B' }]}>
+            MOOD
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.half}
+          onPress={() => {
+            setRatingsType('medical');
+          }}
+        >
+          <Text style={[styles.label, { color: ratingsType === 'medical' ? '#000' : '#9B9B9B' }]}>
+            MEDICAL
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {ratingsType === 'mood' && (
+        <View style={styles.ratingsContainer}>
+          <View style={styles.left}>
+            <Text style={styles.rating}>Happy</Text>
+            <Text style={styles.rating}>Creative</Text>
+            <Text style={styles.rating}>Active</Text>
+            <Text style={styles.rating}>Relaxed</Text>
+            <Text style={styles.rating}>Sleepy</Text>
+          </View>
+          <View style={styles.right}>
+            <CircleRating rating={happy} selectedStar={rating => setHappy(rating)} />
+            <CircleRating rating={creative} selectedStar={rating => setCreative(rating)} />
+            <CircleRating rating={active} selectedStar={rating => setActive(rating)} />
+            <CircleRating rating={relaxed} selectedStar={rating => setRelaxed(rating)} />
+            <CircleRating rating={sleepy} selectedStar={rating => setSleepy(rating)} />
+          </View>
         </View>
-        {this.state.ratingsType === 'mood' && (
-          <View style={styles.ratingsContainer}>
-            <View style={styles.left}>
-              <Text style={styles.rating}>Happy</Text>
-              <Text style={styles.rating}>Creative</Text>
-              <Text style={styles.rating}>Active</Text>
-              <Text style={styles.rating}>Relaxed</Text>
-              <Text style={styles.rating}>Sleepy</Text>
-            </View>
-            <View style={styles.right}>
-              <CircleRating
-                rating={this.state.happy}
-                selectedStar={rating => this.setState({ happy: rating })}
-              />
-              <CircleRating
-                rating={this.state.creative}
-                selectedStar={rating => this.setState({ creative: rating })}
-              />
-              <CircleRating
-                rating={this.state.active}
-                selectedStar={rating => this.setState({ active: rating })}
-              />
-              <CircleRating
-                rating={this.state.relaxed}
-                selectedStar={rating => this.setState({ relaxed: rating })}
-              />
-              <CircleRating
-                rating={this.state.sleepy}
-                selectedStar={rating => this.setState({ sleepy: rating })}
-              />
-            </View>
+      )}
+      {ratingsType === 'medical' && (
+        <View style={styles.ratingsContainer}>
+          <View style={styles.left}>
+            <Text style={styles.rating}>Anxiety</Text>
+            <Text style={styles.rating}>Migraines</Text>
+            <Text style={styles.rating}>Depression</Text>
+            <Text style={styles.rating}>Pain</Text>
+            <Text style={styles.rating}>Insomnia</Text>
           </View>
-        )}
-        {this.state.ratingsType === 'medical' && (
-          <View style={styles.ratingsContainer}>
-            <View style={styles.left}>
-              <Text style={styles.rating}>Anxiety</Text>
-              <Text style={styles.rating}>Migraines</Text>
-              <Text style={styles.rating}>Depression</Text>
-              <Text style={styles.rating}>Pain</Text>
-              <Text style={styles.rating}>Insomnia</Text>
-            </View>
-            <View style={styles.right}>
-              <CircleRating
-                rating={this.state.anxiety}
-                selectedStar={rating => this.setState({ anxiety: rating })}
-              />
-              <CircleRating
-                rating={this.state.migraines}
-                selectedStar={rating => this.setState({ migraines: rating })}
-              />
-              <CircleRating
-                rating={this.state.depression}
-                selectedStar={rating => this.setState({ depression: rating })}
-              />
-              <CircleRating
-                rating={this.state.pain}
-                selectedStar={rating => this.setState({ pain: rating })}
-              />
-              <CircleRating
-                rating={this.state.insomnia}
-                selectedStar={rating => this.setState({ insomnia: rating })}
-              />
-            </View>
+          <View style={styles.right}>
+            <CircleRating rating={anxiety} selectedStar={rating => setAnxiety(rating)} />
+            <CircleRating rating={migraines} selectedStar={rating => setMigraines(rating)} />
+            <CircleRating rating={depression} selectedStar={rating => setDepression(rating)} />
+            <CircleRating rating={pain} selectedStar={rating => setPain(rating)} />
+            <CircleRating rating={insomnia} selectedStar={rating => setInsomnia(rating)} />
           </View>
-        )}
-        <Text style={styles.label}>TAGS</Text>
-        <View style={styles.tagsContainer}>
-          {this.state.tagOptions.map((tag, i) => {
-            return (
-              <TouchableOpacity
-                key={i}
+        </View>
+      )}
+      <Text style={styles.label}>TAGS</Text>
+      <View style={styles.tagsContainer}>
+        {tagOptions.map((tag, i) => {
+          return (
+            <TouchableOpacity
+              key={i}
+              style={[
+                styles.tagButton,
+                tags.indexOf(tag) === -1 ? styles.tagButtonUnhighlighted : styles.tagButtonHighlighted
+              ]}
+              onPress={() => toggleTag(tag)}
+              onLongPress={() => {
+                const nextTagOptions = tagOptions.filter(t => t !== tag);
+                setTagOptions(nextTagOptions);
+                updateTags(nextTagOptions);
+              }}
+            >
+              <Text
                 style={[
-                  styles.tagButton,
-                  this.state.tags.indexOf(tag) === -1
-                    ? styles.tagButtonUnhighlighted
-                    : styles.tagButtonHighlighted
+                  styles.tag,
+                  tags.indexOf(tag) === -1 ? styles.tagUnhighlighted : styles.tagHighlighted
                 ]}
-                onPress={() => this.toggleTag(tag)}
-                onLongPress={() => {
-                  const tagOptions = this.state.tagOptions.filter(t => t !== tag);
-                  this.setState({ tagOptions });
-                  this.updateTags(tagOptions);
-                }}
               >
-                <Text
-                  style={[
-                    styles.tag,
-                    this.state.tags.indexOf(tag) === -1
-                      ? styles.tagUnhighlighted
-                      : styles.tagHighlighted
-                  ]}
-                >
-                  {tag}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-          <TouchableOpacity
-            style={[styles.tagButton]}
-            onPress={() => this.setState({ dialogVisible: true })}
-          >
-            <Text style={[styles.tag]}>+ ADD</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.nextButtonContainer}>
-          <BlackButton
-            text={'NEXT'}
-            onPress={() => {
-              if (this.isComplete()) {
-                this.props.navigation.navigate('SubmitLog', { log: this.state });
-                this.setState({ hasErrors: false });
-              } else {
-                this.setState({ hasErrors: true });
-              }
-            }}
-          />
-        </View>
-        <Dialog.Container visible={this.state.dialogVisible}>
-          <Dialog.Title>Enter a tag</Dialog.Title>
-          <Dialog.Input
-            onChangeText={newTag => this.setState({ newTag })}
-            textInputRef={ref => (this.input = ref)}
-          />
-          <Dialog.Button label="Cancel" onPress={() => this.setState({ dialogVisible: false })} />
-          <Dialog.Button
-            label="OK"
-            onPress={() => {
-              const { tagOptions, newTag } = this.state;
-              const nextTags =
-                newTag && !tagOptions.includes(newTag) ? [...tagOptions, newTag] : tagOptions;
+                {tag}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+        <TouchableOpacity style={[styles.tagButton]} onPress={() => setDialogVisible(true)}>
+          <Text style={[styles.tag]}>+ ADD</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.nextButtonContainer}>
+        <BlackButton
+          text={'NEXT'}
+          onPress={() => {
+            if (isComplete()) {
+              // Spread the original log first so passthrough fields not
+              // tracked in local state (id, date, finalRating, notes) survive
+              // the edit — that id is what lets SubmitLog update in place.
+              navigation.navigate('SubmitLog', {
+                log: {
+                  ...(log || {}),
+                  strain,
+                  type,
+                  happy,
+                  creative,
+                  active,
+                  relaxed,
+                  sleepy,
+                  anxiety,
+                  migraines,
+                  depression,
+                  pain,
+                  insomnia,
+                  tags,
+                  tagOptions,
+                  dialogVisible,
+                  newTag,
+                  hasErrors,
+                  ratingsType
+                }
+              });
+              setHasErrors(false);
+            } else {
+              setHasErrors(true);
+            }
+          }}
+        />
+      </View>
+      <Dialog.Container visible={dialogVisible}>
+        <Dialog.Title>Enter a tag</Dialog.Title>
+        <Dialog.Input onChangeText={newTag => setNewTag(newTag)} />
+        <Dialog.Button label="Cancel" onPress={() => setDialogVisible(false)} />
+        <Dialog.Button
+          label="OK"
+          onPress={() => {
+            const nextTags = newTag && !tagOptions.includes(newTag) ? [...tagOptions, newTag] : tagOptions;
 
-              this.setState({ tagOptions: nextTags, newTag: '', dialogVisible: false });
-              this.updateTags(nextTags);
-            }}
-          />
-        </Dialog.Container>
-      </ScrollView>
-    );
-  }
-}
+            setTagOptions(nextTags);
+            setNewTag('');
+            setDialogVisible(false);
+            updateTags(nextTags);
+          }}
+        />
+      </Dialog.Container>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
