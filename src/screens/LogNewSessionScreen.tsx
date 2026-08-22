@@ -19,7 +19,7 @@ export const logNewSessionScreenOptions = ({
 }: AppScreenProps<'LogNewSession'>): NativeStackNavigationOptions => ({
   // Editing an existing log shows its own date; moment(undefined) falls back
   // to today, which is correct for a brand new session.
-  title: moment(route.params?.log?.date).format('MM/DD'),
+  title: moment(route.params?.log?.date).format('MM/DD/YYYY'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
   )
