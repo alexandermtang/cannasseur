@@ -1,9 +1,9 @@
 import React from 'react';
-import { AsyncStorage, Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import CheckBox from 'react-native-check-box';
-import { Ionicons } from '@expo/vector-icons';
-import * as firebase from 'firebase';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import Checkbox from 'expo-checkbox';
 import Spinner from 'react-native-loading-spinner-overlay';
+
+import { supabase } from '../../lib/supabase';
 
 class SignUpScreen extends React.Component {
   state = {
@@ -14,6 +14,7 @@ class SignUpScreen extends React.Component {
     isOver18: false,
 
     error: '',
+    notice: '',
     isLoading: false
   };
 
@@ -35,25 +36,29 @@ class SignUpScreen extends React.Component {
       return this.setState({ error: 'Please verify your age.', isLoading: false });
     }
 
-    try {
-      await firebase.auth().createUserWithEmailAndPassword(email, password);
+    // The `name` lands in raw_user_meta_data; the on_auth_user_created trigger
+    // copies it into the profiles row, so there is no manual profile write here.
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } }
+    });
 
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          AsyncStorage.setItem('userId', user.uid);
-          firebase
-            .database()
-            .ref(`users/${user.uid}`)
-            .set({ name, email });
-          this.props.navigation.navigate('App');
-        } else {
-          AsyncStorage.setItem('userId', '');
-        }
-      });
-    } catch (error) {
-      console.log(error);
-      this.setState({ error: 'Invalid email or password.', isLoading: false });
+    if (error) {
+      return this.setState({ error: error.message, isLoading: false });
     }
+
+    if (!data.session) {
+      // Email confirmation is on for this project, so no session exists yet.
+      // Without this the screen would silently do nothing.
+      return this.setState({
+        notice: 'Check your email to confirm your account, then log in.',
+        isLoading: false
+      });
+    }
+
+    // Session exists: onAuthStateChange in App.js swaps the stack.
+    this.setState({ isLoading: false });
   }
 
   render() {
@@ -89,12 +94,11 @@ class SignUpScreen extends React.Component {
           secureTextEntry
         />
         <View style={styles.isOver18Container}>
-          <CheckBox
-            onClick={() => this.setState({ isOver18: !this.state.isOver18, error: '' })}
-            isChecked={this.state.isOver18}
-            checkedImage={<Ionicons name={'ios-checkbox'} size={32} />}
-            unCheckedImage={<Ionicons name={'ios-square-outline'} size={32} />}
-            style={{ marginRight: 16 }}
+          <Checkbox
+            value={this.state.isOver18}
+            onValueChange={() => this.setState({ isOver18: !this.state.isOver18, error: '' })}
+            color={this.state.isOver18 ? '#000' : undefined}
+            style={{ marginRight: 16, width: 28, height: 28 }}
           />
           <TouchableOpacity
             onPress={() => this.setState({ isOver18: !this.state.isOver18, error: '' })}
@@ -102,7 +106,8 @@ class SignUpScreen extends React.Component {
             <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>I am over the age of 21.</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.error}>{this.state.error}</Text>}
+        <Text style={styles.error}>{this.state.error}</Text>
+        {this.state.notice !== '' && <Text style={styles.notice}>{this.state.notice}</Text>}
         <TouchableOpacity
           style={[styles.button, styles.signUpButton]}
           onPress={() => {
@@ -159,6 +164,14 @@ const styles = StyleSheet.create({
     color: '#f00',
     height: 24,
     marginTop: 8
+  },
+  notice: {
+    fontSize: 16,
+    fontFamily: 'WorkSans',
+    color: '#000',
+    textAlign: 'center',
+    width: '80%',
+    marginBottom: 8
   },
   isOver18Container: {
     display: 'flex',

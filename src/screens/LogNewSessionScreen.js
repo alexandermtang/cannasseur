@@ -1,33 +1,23 @@
 import React from 'react';
-import {
-  AsyncStorage,
-  Text,
-  TouchableOpacity,
-  View,
-  TextInput,
-  StyleSheet,
-  ScrollView
-} from 'react-native';
+import { Text, TouchableOpacity, View, TextInput, StyleSheet, ScrollView } from 'react-native';
 import moment from 'moment';
-import { Ionicons } from '@expo/vector-icons';
 import Dialog from 'react-native-dialog';
-import * as firebase from 'firebase';
 
 import CircleRating from '../components/CircleRating';
 import BlackButton from '../components/BlackButton';
+import HeaderButton from '../components/HeaderButton';
+import { supabase, currentUserId } from '../lib/supabase';
+
+const DEFAULT_TAGS = ['Laughing', 'Socializing', 'Yoga', 'Munchies', 'Movies', 'Ideas'];
+
+export const logNewSessionScreenOptions = ({ navigation }) => ({
+  title: moment().format('MM/DD'),
+  headerLeft: () => (
+    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+  )
+});
 
 class LogNewSessionScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: moment().format('MM/DD'),
-      headerLeft: (
-        <TouchableOpacity style={{ left: 16 }} onPress={() => navigation.goBack()}>
-          <Ionicons name={'ios-arrow-dropleft'} size={32} />
-        </TouchableOpacity>
-      )
-    };
-  };
-
   state = {
     strain: '',
     type: 'Flower', // or 'Concentrate'
@@ -54,28 +44,29 @@ class LogNewSessionScreen extends React.Component {
   };
 
   async componentDidMount() {
-    const log = this.props.navigation.getParam('log', null);
+    const log = (this.props.route.params && this.props.route.params.log) || null;
     if (log) {
       this.setState({ ...log });
     }
 
-    try {
-      const userId = await AsyncStorage.getItem('userId');
-      const snapshot = await firebase
-        .database()
-        .ref(`users/${userId}/tags`)
-        .once('value');
-      const tagOptions = snapshot.val();
-      if (tagOptions === null) {
-        this.setState({
-          tagOptions: ['Laughing', 'Socializing', 'Yoga', 'Munchies', 'Movies', 'Ideas']
-        });
-      } else {
-        this.setState({ tagOptions });
-      }
-    } catch (error) {
-      console.error(error);
+    const userId = await currentUserId();
+    if (!userId) {
+      return;
     }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('tags')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      return console.error(error);
+    }
+
+    // A profile with no tags yet gets the original starter set.
+    const tagOptions = data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
+    this.setState({ tagOptions });
   }
 
   toggleTag(tag) {
@@ -88,12 +79,22 @@ class LogNewSessionScreen extends React.Component {
     return this.state.strain !== '';
   }
 
-  async updateTags() {
-    const userId = await AsyncStorage.getItem('userId');
-    await firebase
-      .database()
-      .ref(`users/${userId}`)
-      .update({ tags: this.state.tagOptions });
+  // Takes the tags explicitly: callers used to fire this straight after
+  // setState and read back this.state, which races with React's batching.
+  async updateTags(tagOptions) {
+    const userId = await currentUserId();
+    if (!userId) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ tags: tagOptions })
+      .eq('id', userId);
+
+    if (error) {
+      console.error(error);
+    }
   }
 
   render() {
@@ -244,8 +245,9 @@ class LogNewSessionScreen extends React.Component {
                 ]}
                 onPress={() => this.toggleTag(tag)}
                 onLongPress={() => {
-                  this.setState({ tagOptions: this.state.tagOptions.filter(t => t !== tag) });
-                  this.updateTags();
+                  const tagOptions = this.state.tagOptions.filter(t => t !== tag);
+                  this.setState({ tagOptions });
+                  this.updateTags(tagOptions);
                 }}
               >
                 <Text
@@ -292,14 +294,11 @@ class LogNewSessionScreen extends React.Component {
             label="OK"
             onPress={() => {
               const { tagOptions, newTag } = this.state;
-              if (newTag && !tagOptions.includes(newTag)) {
-                this.setState({
-                  tagOptions: [...tagOptions, newTag],
-                  newTag: ''
-                });
-              }
-              this.setState({ dialogVisible: false });
-              this.updateTags();
+              const nextTags =
+                newTag && !tagOptions.includes(newTag) ? [...tagOptions, newTag] : tagOptions;
+
+              this.setState({ tagOptions: nextTags, newTag: '', dialogVisible: false });
+              this.updateTags(nextTags);
             }}
           />
         </Dialog.Container>

@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  AsyncStorage,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Image
-} from 'react-native';
-import * as firebase from 'firebase';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
+
+import { supabase } from '../../lib/supabase';
 
 class LoginScreen extends React.Component {
   state = {
@@ -22,21 +15,15 @@ class LoginScreen extends React.Component {
   async onPress() {
     const { email, password } = this.state;
 
-    try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          AsyncStorage.setItem('userId', user.uid);
-          this.props.navigation.navigate('App');
-        } else {
-          AsyncStorage.clear();
-        }
-      });
-    } catch (error) {
-      console.log(error);
+    if (error) {
       this.setState({ error: 'Invalid email or password.', isLoading: false });
+      return;
     }
+
+    // No navigate() here: onAuthStateChange in App.js swaps the stack.
+    this.setState({ isLoading: false });
   }
 
   render() {

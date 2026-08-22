@@ -1,48 +1,48 @@
 import React from 'react';
-import {
-  AsyncStorage,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import * as firebase from 'firebase';
+import { StyleSheet, Text, View } from 'react-native';
 
 import BlackButton from '../components/BlackButton';
+import HeaderButton from '../components/HeaderButton';
+import { supabase, currentUserId } from '../lib/supabase';
+
+export const meScreenOptions = ({ navigation }) => ({
+  title: 'PROFILE',
+  headerLeft: () => (
+    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+  )
+});
 
 class MeScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: 'PROFILE',
-      headerLeft: (
-        <TouchableOpacity style={{ left: 16 }} onPress={() => navigation.goBack()}>
-          <Ionicons name={'ios-arrow-dropleft'} size={32} />
-        </TouchableOpacity>
-      )
-    };
-  };
-
   state = {
     name: '',
     email: ''
   };
 
   async componentDidMount() {
-    const userId = await AsyncStorage.getItem('userId');
-    const snapshot = await firebase
-      .database()
-      .ref(`/users/${userId}`)
-      .once('value');
-    const { name, email } = snapshot.val();
+    const userId = await currentUserId();
+    if (!userId) {
+      return;
+    }
 
-    this.setState({ name, email });
+    // Email lives on the auth user, not on profiles — single source of truth.
+    const [{ data: profile }, { data: userData }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', userId)
+        .single(),
+      supabase.auth.getUser()
+    ]);
+
+    this.setState({
+      name: profile ? profile.name : '',
+      email: userData.user ? userData.user.email : ''
+    });
   }
 
   async logout() {
-    await AsyncStorage.clear();
-    await firebase.auth().signOut();
-    this.props.navigation.navigate('AuthLoading');
+    // onAuthStateChange in App.js swaps back to the auth stack.
+    await supabase.auth.signOut();
   }
 
   render() {

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import * as firebase from 'firebase';
+
+import { supabase } from '../../lib/supabase';
 
 class ForgotPasswordScreen extends React.Component {
   state = {
@@ -16,14 +17,14 @@ class ForgotPasswordScreen extends React.Component {
       return this.setState({ error: 'Missing email.', isLoading: false });
     }
 
-    try {
-      await firebase.auth().sendPasswordResetEmail(email);
-      this.setState({ isLoading: false });
-      this.props.navigation.goBack();
-    } catch (error) {
-      // console.error(error);
-      this.setState({ error: 'Invalid email.', isLoading: false });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      return this.setState({ error: 'Invalid email.', isLoading: false });
     }
+
+    this.setState({ isLoading: false });
+    this.props.navigation.goBack();
   }
 
   render() {

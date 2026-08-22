@@ -1,105 +1,116 @@
-console.disableYellowBox = true;
+import 'react-native-gesture-handler';
 
-import React from 'react';
-import { Font } from 'expo';
-import { createSwitchNavigator, createStackNavigator } from 'react-navigation';
-import * as firebase from 'firebase';
-import Sentry from 'sentry-expo';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, LogBox } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
-import AuthLoadingScreen from './src/screens/Auth/AuthLoadingScreen';
+import { supabase } from './src/lib/supabase';
+
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import SignUpScreen from './src/screens/Auth/SignUpScreen';
 import SignUpLoginScreen from './src/screens/Auth/SignUpLoginScreen';
 import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
 
-import HomeScreen from './src/screens/HomeScreen';
-import MeScreen from './src/screens/MeScreen';
-import LogNewSessionScreen from './src/screens/LogNewSessionScreen';
-import SubmitLogScreen from './src/screens/SubmitLogScreen';
-import ViewLogScreen from './src/screens/ViewLogScreen';
+import HomeScreen, { homeScreenOptions } from './src/screens/HomeScreen';
+import MeScreen, { meScreenOptions } from './src/screens/MeScreen';
+import LogNewSessionScreen, {
+  logNewSessionScreenOptions
+} from './src/screens/LogNewSessionScreen';
+import SubmitLogScreen, { submitLogScreenOptions } from './src/screens/SubmitLogScreen';
+import ViewLogScreen, { viewLogScreenOptions } from './src/screens/ViewLogScreen';
 
-// Remove this once Sentry is correctly setup.
-// Sentry.enableInExpoDevelopment = true;
-Sentry.config('https://a1cda1492c96487c9f552d2fda4aa5ce@sentry.io/1277442').install();
-// Sentry.captureException(new Error('Oops!'))
+LogBox.ignoreAllLogs();
 
-firebase.initializeApp({
-  apiKey: 'AIzaSyAhvETpCtA9thHsBvq9Nms08jXB8X93kWc',
-  authDomain: 'cannasseur-3e6f3.firebaseapp.com',
-  databaseURL: 'https://cannasseur-3e6f3.firebaseio.com',
-  projectId: 'cannasseur-3e6f3',
-  storageBucket: 'cannasseur-3e6f3.appspot.com',
-  messagingSenderId: '59531614040'
-});
+SplashScreen.preventAutoHideAsync();
 
-const AuthStack = createStackNavigator(
-  {
-    Login: LoginScreen,
-    SignUp: SignUpScreen,
-    SignUpLogin: SignUpLoginScreen,
-    ForgotPassword: ForgotPasswordScreen
-  },
-  {
-    initialRouteName: 'SignUpLogin',
-    headerMode: 'none',
-    navigationOptions: {
-      headerVisible: false
-    }
-  }
+const Stack = createNativeStackNavigator();
+
+const appScreenOptions = {
+  headerStyle: { backgroundColor: '#F4F3EF' },
+  headerTintColor: '#000',
+  headerTitleStyle: { fontFamily: 'WorkSans' }
+};
+
+const AuthStack = () => (
+  <Stack.Navigator initialRouteName={'SignUpLogin'} screenOptions={{ headerShown: false }}>
+    <Stack.Screen name={'SignUpLogin'} component={SignUpLoginScreen} />
+    <Stack.Screen name={'Login'} component={LoginScreen} />
+    <Stack.Screen name={'SignUp'} component={SignUpScreen} />
+    <Stack.Screen name={'ForgotPassword'} component={ForgotPasswordScreen} />
+  </Stack.Navigator>
 );
 
-const AppStack = createStackNavigator(
-  {
-    Home: HomeScreen,
-    Me: MeScreen,
-    LogNewSession: LogNewSessionScreen,
-    SubmitLog: SubmitLogScreen,
-    ViewLog: ViewLogScreen
-  },
-  {
-    initialRouteName: 'Home',
-    navigationOptions: {
-      headerStyle: {
-        backgroundColor: '#F4F3EF'
-      },
-      headerTintColor: '#000',
-      headerTitleStyle: {
-        fontFamily: 'WorkSans'
-      }
-    }
-  }
+const AppStack = () => (
+  <Stack.Navigator initialRouteName={'Home'} screenOptions={appScreenOptions}>
+    <Stack.Screen name={'Home'} component={HomeScreen} options={homeScreenOptions} />
+    <Stack.Screen name={'Me'} component={MeScreen} options={meScreenOptions} />
+    <Stack.Screen
+      name={'LogNewSession'}
+      component={LogNewSessionScreen}
+      options={logNewSessionScreenOptions}
+    />
+    <Stack.Screen
+      name={'SubmitLog'}
+      component={SubmitLogScreen}
+      options={submitLogScreenOptions}
+    />
+    <Stack.Screen name={'ViewLog'} component={ViewLogScreen} options={viewLogScreenOptions} />
+  </Stack.Navigator>
 );
 
-const SwitchNavigator = createSwitchNavigator(
-  {
-    AuthLoading: AuthLoadingScreen,
-    App: AppStack,
-    Auth: AuthStack
-  },
-  {
-    initialRouteName: 'AuthLoading'
-  }
-);
+const App = () => {
+  const [fontsLoaded] = useFonts({
+    'PlayfairDisplay-Italic': require('./assets/fonts/PlayfairDisplay-Italic.ttf'),
+    'PlayfairDisplay-Regular': require('./assets/fonts/PlayfairDisplay-Regular.ttf'),
+    WorkSans: require('./assets/fonts/WorkSans-Regular.ttf'),
+    'WorkSans-Bold': require('./assets/fonts/WorkSans-Bold.ttf')
+  });
 
-class App extends React.Component {
-  state = {
-    fontLoaded: false
-  };
+  // Replaces AuthLoadingScreen and the hand-rolled AsyncStorage 'userId' flag.
+  const [session, setSession] = useState(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-  async componentDidMount() {
-    await Font.loadAsync({
-      'PlayfairDisplay-Italic': require('./assets/fonts/PlayfairDisplay-Italic.ttf'),
-      'PlayfairDisplay-Regular': require('./assets/fonts/PlayfairDisplay-Regular.ttf'),
-      WorkSans: require('./assets/fonts/WorkSans-Regular.ttf'),
-      'WorkSans-Bold': require('./assets/fonts/WorkSans-Bold.ttf')
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setSessionChecked(true);
     });
 
-    this.setState({ fontLoaded: true });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const isReady = fontsLoaded && sessionChecked;
+
+  useEffect(() => {
+    if (isReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [isReady]);
+
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
   }
 
-  render() {
-    return this.state.fontLoaded && <SwitchNavigator />;
-  }
-}
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <NavigationContainer>{session ? <AppStack /> : <AuthStack />}</NavigationContainer>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+};
 
 export default App;

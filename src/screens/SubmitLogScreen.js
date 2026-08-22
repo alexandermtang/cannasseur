@@ -1,25 +1,22 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, TextInput, StyleSheet, AsyncStorage } from 'react-native';
+import { Text, View, TextInput, StyleSheet } from 'react-native';
 import moment from 'moment';
-import { Ionicons } from '@expo/vector-icons';
-import StarRating from 'react-native-star-rating';
-import * as firebase from 'firebase';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+import StarRating from '../components/StarRating';
 import BlackButton from '../components/BlackButton';
+import HeaderButton from '../components/HeaderButton';
+import { supabase, currentUserId } from '../lib/supabase';
+import { toRow } from '../lib/logs';
+
+export const submitLogScreenOptions = ({ navigation }) => ({
+  title: moment().format('MM/DD'),
+  headerLeft: () => (
+    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+  )
+});
 
 class SubmitLogScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: moment().format('MM/DD'),
-      headerLeft: (
-        <TouchableOpacity style={{ left: 16 }} onPress={() => navigation.goBack()}>
-          <Ionicons name={'ios-arrow-dropleft'} size={32} />
-        </TouchableOpacity>
-      )
-    };
-  };
-
   state = {
     finalRating: 0,
     notes: '',
@@ -27,46 +24,40 @@ class SubmitLogScreen extends React.Component {
   };
 
   componentDidMount() {
-    const log = this.props.navigation.getParam('log', {});
-    if (log) {
-      this.setState({ ...log });
-    }
+    const log = (this.props.route.params && this.props.route.params.log) || {};
+    this.setState({ ...log });
   }
 
   async onSubmit() {
-    if (this.isComplete()) {
-      const userId = await AsyncStorage.getItem('userId');
-      const log = this.props.navigation.getParam('log', {});
-      const { finalRating, notes } = this.state;
-      const date = this.state.date || moment().format();
-      await firebase
-        .database()
-        .ref(`logs/${userId}/${date}`)
-        .set({
-          strain: log.strain,
-          type: log.type,
-
-          happy: log.happy,
-          creative: log.creative,
-          active: log.active,
-          relaxed: log.relaxed,
-          sleepy: log.sleepy,
-
-          anxiety: log.anxiety,
-          migraines: log.migraines,
-          depression: log.depression,
-          pain: log.pain,
-          insomnia: log.insomnia,
-
-          tags: log.tags,
-          finalRating,
-          notes
-        });
-      this.setState({ hasError: false });
-      this.props.navigation.navigate('Home', { forceUpdate: true });
-    } else {
-      this.setState({ hasError: true });
+    if (!this.isComplete()) {
+      return this.setState({ hasError: true });
     }
+
+    const userId = await currentUserId();
+    const log = (this.props.route.params && this.props.route.params.log) || {};
+    const { finalRating, notes } = this.state;
+
+    const row = toRow(
+      { ...log, finalRating, notes, date: this.state.date || moment().format() },
+      userId
+    );
+
+    // Editing an existing log updates that row; a new session inserts one.
+    const { error } = log.id
+      ? await supabase
+          .from('logs')
+          .update(row)
+          .eq('id', log.id)
+      : await supabase.from('logs').insert(row);
+
+    if (error) {
+      console.error(error);
+      return this.setState({ hasError: true });
+    }
+
+    this.setState({ hasError: false });
+    // Home re-fetches on focus, so no forceUpdate param is needed.
+    this.props.navigation.navigate('Home');
   }
 
   isComplete() {
