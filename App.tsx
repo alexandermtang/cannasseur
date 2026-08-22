@@ -8,8 +8,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import type { Session } from '@supabase/supabase-js';
 
 import { supabase } from './src/lib/supabase';
+import type { AuthStackParamList, AppStackParamList } from './src/types/navigation';
 
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import SignUpScreen from './src/screens/Auth/SignUpScreen';
@@ -28,7 +30,8 @@ LogBox.ignoreAllLogs();
 
 SplashScreen.preventAutoHideAsync();
 
-const Stack = createNativeStackNavigator();
+const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
+const AppStackNavigator = createNativeStackNavigator<AppStackParamList>();
 
 const appScreenOptions = {
   headerStyle: { backgroundColor: '#F4F3EF' },
@@ -37,30 +40,37 @@ const appScreenOptions = {
 };
 
 const AuthStack = () => (
-  <Stack.Navigator initialRouteName={'SignUpLogin'} screenOptions={{ headerShown: false }}>
-    <Stack.Screen name={'SignUpLogin'} component={SignUpLoginScreen} />
-    <Stack.Screen name={'Login'} component={LoginScreen} />
-    <Stack.Screen name={'SignUp'} component={SignUpScreen} />
-    <Stack.Screen name={'ForgotPassword'} component={ForgotPasswordScreen} />
-  </Stack.Navigator>
+  <AuthStackNavigator.Navigator
+    initialRouteName={'SignUpLogin'}
+    screenOptions={{ headerShown: false }}
+  >
+    <AuthStackNavigator.Screen name={'SignUpLogin'} component={SignUpLoginScreen} />
+    <AuthStackNavigator.Screen name={'Login'} component={LoginScreen} />
+    <AuthStackNavigator.Screen name={'SignUp'} component={SignUpScreen} />
+    <AuthStackNavigator.Screen name={'ForgotPassword'} component={ForgotPasswordScreen} />
+  </AuthStackNavigator.Navigator>
 );
 
 const AppStack = () => (
-  <Stack.Navigator initialRouteName={'Home'} screenOptions={appScreenOptions}>
-    <Stack.Screen name={'Home'} component={HomeScreen} options={homeScreenOptions} />
-    <Stack.Screen name={'Me'} component={MeScreen} options={meScreenOptions} />
-    <Stack.Screen
+  <AppStackNavigator.Navigator initialRouteName={'Home'} screenOptions={appScreenOptions}>
+    <AppStackNavigator.Screen name={'Home'} component={HomeScreen} options={homeScreenOptions} />
+    <AppStackNavigator.Screen name={'Me'} component={MeScreen} options={meScreenOptions} />
+    <AppStackNavigator.Screen
       name={'LogNewSession'}
       component={LogNewSessionScreen}
       options={logNewSessionScreenOptions}
     />
-    <Stack.Screen
+    <AppStackNavigator.Screen
       name={'SubmitLog'}
       component={SubmitLogScreen}
       options={submitLogScreenOptions}
     />
-    <Stack.Screen name={'ViewLog'} component={ViewLogScreen} options={viewLogScreenOptions} />
-  </Stack.Navigator>
+    <AppStackNavigator.Screen
+      name={'ViewLog'}
+      component={ViewLogScreen}
+      options={viewLogScreenOptions}
+    />
+  </AppStackNavigator.Navigator>
 );
 
 const App = () => {
@@ -72,7 +82,7 @@ const App = () => {
   });
 
   // Replaces AuthLoadingScreen and the hand-rolled AsyncStorage 'userId' flag.
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {

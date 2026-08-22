@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
+import type { AppScreenProps } from '../types/navigation';
 
-export const meScreenOptions = ({ navigation }) => ({
+export const meScreenOptions = ({
+  navigation
+}: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
   title: 'PROFILE',
   headerLeft: () => (
     <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
@@ -34,7 +38,7 @@ const MeScreen = () => {
       ]);
 
       setName(profile ? profile.name : '');
-      setEmail(userData.user ? userData.user.email : '');
+      setEmail(userData.user ? userData.user.email || '' : '');
     })();
   }, []);
 

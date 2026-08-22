@@ -4,8 +4,9 @@ import Checkbox from 'expo-checkbox';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { supabase } from '../../lib/supabase';
+import type { AuthScreenProps } from '../../types/navigation';
 
-const SignUpScreen = ({ navigation }) => {
+const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -198,6 +199,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '80%',
     marginTop: 16
+  },
+  buttonText: {
+    fontFamily: 'WorkSans',
+    fontSize: 16
   }
 });
 

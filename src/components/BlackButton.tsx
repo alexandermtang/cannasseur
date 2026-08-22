@@ -1,7 +1,11 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
 
-const BlackButton = props => (
+interface BlackButtonProps extends TouchableOpacityProps {
+  text: string;
+}
+
+const BlackButton = (props: BlackButtonProps) => (
   <TouchableOpacity {...props} style={styles.button}>
     <Text style={styles.buttonText}>{props.text}</Text>
   </TouchableOpacity>

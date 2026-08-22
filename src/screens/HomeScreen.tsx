@@ -13,23 +13,53 @@ import {
   RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import ListItem from '../components/ListItem';
 import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { fromRow } from '../lib/logs';
+import type { Log } from '../types/log';
+import type { AppScreenProps } from '../types/navigation';
 
-export const homeScreenOptions = ({ navigation }) => ({
+export const homeScreenOptions = ({
+  navigation
+}: AppScreenProps<'Home'>): NativeStackNavigationOptions => ({
   title: 'LOG BOOK',
   headerRight: () => (
     <HeaderButton name={'person-circle-outline'} onPress={() => navigation.push('Me')} />
   )
 });
 
-const HomeScreen = ({ navigation }) => {
-  const [allLogs, setAllLogs] = useState([]);
-  const [filteredLogs, setFilteredLogs] = useState([]);
+type SortType =
+  | 'mostRecent'
+  | 'topRated'
+  | 'happy'
+  | 'creative'
+  | 'active'
+  | 'relaxed'
+  | 'sleepy'
+  | 'anxiety'
+  | 'migraines'
+  | 'depression'
+  | 'pain'
+  | 'insomnia';
+
+const MOOD_TYPES = ['happy', 'creative', 'active', 'relaxed', 'sleepy'] as const;
+const MEDICAL_TYPES = ['anxiety', 'migraines', 'depression', 'pain', 'insomnia'] as const;
+
+type MoodField = (typeof MOOD_TYPES)[number];
+type MedicalField = (typeof MEDICAL_TYPES)[number];
+
+const isMoodField = (type: SortType): type is MoodField =>
+  (MOOD_TYPES as readonly string[]).includes(type);
+const isMedicalField = (type: SortType): type is MedicalField =>
+  (MEDICAL_TYPES as readonly string[]).includes(type);
+
+const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
+  const [allLogs, setAllLogs] = useState<Log[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [filterText, setFilterText] = useState('MOST RECENT');
@@ -69,11 +99,11 @@ const HomeScreen = ({ navigation }) => {
     return unsubscribeFocus;
   }, [navigation, getLogs]);
 
-  const search = searchText => {
+  const search = (searchText: string) => {
     if (searchText === '') {
       setFilteredLogs(allLogs);
     } else {
-      const nextFilteredLogs = allLogs.reduce((logs, log) => {
+      const nextFilteredLogs = allLogs.reduce<Log[]>((logs, log) => {
         const isInclude =
           log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
           (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()));
@@ -85,7 +115,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
-  const animateSheet = (toValue, onComplete) => {
+  const animateSheet = (toValue: number, onComplete?: () => void) => {
     Animated.timing(bottomAnim, {
       toValue,
       duration: 250,
@@ -102,20 +132,20 @@ const HomeScreen = ({ navigation }) => {
     animateSheet(-600, () => setShowModal(false));
   };
 
-  const sortBy = (type = 'mostRecent') => {
+  const sortBy = (type: SortType = 'mostRecent') => {
     const tempLogs = [...allLogs];
     let nextFilterText = '';
 
     if (type === 'mostRecent') {
-      tempLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      tempLogs.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
       nextFilterText = 'MOST RECENT';
     } else if (type === 'topRated') {
-      tempLogs.sort((a, b) => b.finalRating - a.finalRating);
+      tempLogs.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
       nextFilterText = 'TOP RATED';
-    } else if (['happy', 'creative', 'active', 'relaxed', 'sleepy'].includes(type)) {
+    } else if (isMoodField(type)) {
       tempLogs.sort((a, b) => b[type] - a[type]);
       nextFilterText = `MOOD: ${type.toUpperCase()}`;
-    } else if (['anxiety', 'migraines', 'depression', 'pain', 'insomnia'].includes(type)) {
+    } else if (isMedicalField(type)) {
       tempLogs.sort((a, b) => b[type] - a[type]);
       nextFilterText = `MEDICAL: ${type.toUpperCase()}`;
     }
@@ -132,7 +162,7 @@ const HomeScreen = ({ navigation }) => {
     setRefreshing(false);
   };
 
-  const strainsSet = new Set();
+  const strainsSet = new Set<string>();
   allLogs.forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
 
@@ -162,7 +192,7 @@ const HomeScreen = ({ navigation }) => {
         <FlatList
           style={styles.logsContainer}
           data={filteredLogs}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id || ''}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -241,7 +271,7 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const FilterButton = ({ onPress, text }) => (
+const FilterButton = ({ onPress, text }: { onPress: () => void; text: string }) => (
   <TouchableOpacity
     style={{ alignItems: 'center', justifyContent: 'center', height: 56 }}
     onPress={() => onPress()}

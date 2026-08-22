@@ -2,26 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, TextInput, StyleSheet, ScrollView } from 'react-native';
 import moment from 'moment';
 import Dialog from 'react-native-dialog';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import CircleRating from '../components/CircleRating';
 import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
+import type { LogKind } from '../types/log';
+import type { AppScreenProps } from '../types/navigation';
 
 const DEFAULT_TAGS = ['Laughing', 'Socializing', 'Yoga', 'Munchies', 'Movies', 'Ideas'];
 
-export const logNewSessionScreenOptions = ({ navigation }) => ({
+export const logNewSessionScreenOptions = ({
+  navigation
+}: AppScreenProps<'LogNewSession'>): NativeStackNavigationOptions => ({
   title: moment().format('MM/DD'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
   )
 });
 
-const LogNewSessionScreen = ({ navigation, route }) => {
+const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSession'>) => {
   const log = (route.params && route.params.log) || null;
 
   const [strain, setStrain] = useState(log ? log.strain : '');
-  const [type, setType] = useState(log ? log.type : 'Flower'); // or 'Concentrate'
+  const [type, setType] = useState<LogKind>(log ? log.type : 'Flower');
 
   const [happy, setHappy] = useState(log ? log.happy : 0);
   const [creative, setCreative] = useState(log ? log.creative : 0);
@@ -35,13 +40,13 @@ const LogNewSessionScreen = ({ navigation, route }) => {
   const [pain, setPain] = useState(log ? log.pain : 0);
   const [insomnia, setInsomnia] = useState(log ? log.insomnia : 0);
 
-  const [tags, setTags] = useState(log ? log.tags : []);
-  const [tagOptions, setTagOptions] = useState([]);
+  const [tags, setTags] = useState<string[]>(log ? log.tags : []);
+  const [tagOptions, setTagOptions] = useState<string[]>([]);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [hasErrors, setHasErrors] = useState(false);
 
-  const [ratingsType, setRatingsType] = useState('mood'); // or 'medical'
+  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>('mood');
 
   useEffect(() => {
     (async () => {
@@ -61,12 +66,13 @@ const LogNewSessionScreen = ({ navigation, route }) => {
       }
 
       // A profile with no tags yet gets the original starter set.
-      const nextTagOptions = data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
+      const nextTagOptions: string[] =
+        data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
       setTagOptions(nextTagOptions);
     })();
   }, []);
 
-  const toggleTag = tag => {
+  const toggleTag = (tag: string) => {
     const newTags = tags.indexOf(tag) === -1 ? [...tags, tag] : tags.filter(t => t !== tag);
     setTags(newTags);
   };
@@ -75,7 +81,7 @@ const LogNewSessionScreen = ({ navigation, route }) => {
 
   // Takes the tags explicitly: callers used to fire this straight after
   // setState and read back this.state, which races with React's batching.
-  const updateTags = async tagOptions => {
+  const updateTags = async (tagOptions: string[]) => {
     const userId = await currentUserId();
     if (!userId) {
       return;
@@ -232,12 +238,7 @@ const LogNewSessionScreen = ({ navigation, route }) => {
                   depression,
                   pain,
                   insomnia,
-                  tags,
-                  tagOptions,
-                  dialogVisible,
-                  newTag,
-                  hasErrors,
-                  ratingsType
+                  tags
                 }
               });
               setHasErrors(false);

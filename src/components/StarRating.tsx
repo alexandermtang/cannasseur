@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // Local replacement for `react-native-star-rating`, which is frozen at 2018 code
@@ -8,6 +8,21 @@ import { Ionicons } from '@expo/vector-icons';
 // Size still comes from `starStyle.fontSize`, as it did before.
 
 const DEFAULT_SIZE = 24;
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+export interface StarRatingProps {
+  rating?: number;
+  maxStars?: number;
+  disabled?: boolean;
+  selectedStar?: (position: number) => void;
+  starStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  fullStar?: IconName;
+  emptyStar?: IconName;
+  fullStarColor?: string;
+  emptyStarColor?: string;
+}
 
 const StarRating = ({
   rating = 0,
@@ -20,7 +35,7 @@ const StarRating = ({
   emptyStar = 'star-outline',
   fullStarColor = '#000',
   emptyStarColor = '#d8d8d8'
-}) => {
+}: StarRatingProps) => {
   const flattened = StyleSheet.flatten(starStyle) || {};
   const size = flattened.fontSize || DEFAULT_SIZE;
 

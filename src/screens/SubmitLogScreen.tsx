@@ -1,39 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Text, View, TextInput, StyleSheet } from 'react-native';
 import moment from 'moment';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import StarRating from '../components/StarRating';
 import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { toRow } from '../lib/logs';
+import type { Log } from '../types/log';
+import type { AppScreenProps } from '../types/navigation';
 
-export const submitLogScreenOptions = ({ navigation }) => ({
+export const submitLogScreenOptions = ({
+  navigation
+}: AppScreenProps<'SubmitLog'>): NativeStackNavigationOptions => ({
   title: moment().format('MM/DD'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
   )
 });
 
-const SubmitLogScreen = ({ navigation, route }) => {
-  const [finalRating, setFinalRating] = useState(0);
-  const [notes, setNotes] = useState('');
-  const [hasError, setHasError] = useState(false);
-  const [date, setDate] = useState(undefined);
+const SubmitLogScreen = ({ navigation, route }: AppScreenProps<'SubmitLog'>) => {
+  const initialLog = (route.params && route.params.log) || undefined;
 
-  useEffect(() => {
-    const log = (route.params && route.params.log) || {};
-    if (log.finalRating !== undefined) {
-      setFinalRating(log.finalRating);
-    }
-    if (log.notes !== undefined) {
-      setNotes(log.notes);
-    }
-    if (log.date !== undefined) {
-      setDate(log.date);
-    }
-  }, []);
+  const [finalRating, setFinalRating] = useState(initialLog?.finalRating ?? 0);
+  const [notes, setNotes] = useState(initialLog?.notes ?? '');
+  const [hasError, setHasError] = useState(false);
+  const [date, setDate] = useState(initialLog?.date);
 
   const isComplete = () => finalRating !== 0;
 
@@ -44,7 +38,7 @@ const SubmitLogScreen = ({ navigation, route }) => {
     }
 
     const userId = await currentUserId();
-    const log = (route.params && route.params.log) || {};
+    const log = (route.params && route.params.log) || ({} as Log);
 
     const row = toRow({ ...log, finalRating, notes, date: date || moment().format() }, userId);
 

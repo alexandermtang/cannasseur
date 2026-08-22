@@ -2,16 +2,29 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import moment from 'moment';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import type { SharedValue } from 'react-native-reanimated';
 
 import StarRating from './StarRating';
+import type { Log } from '../types/log';
 
 const DELETE_WIDTH = 96;
 
-const ListItem = ({ item, onPress, onPressDelete }) => {
+interface ListItemProps {
+  item: Log;
+  onPress: () => void;
+  onPressDelete: () => void;
+}
+
+const ListItem = ({ item, onPress, onPressDelete }: ListItemProps) => {
   const date = moment(item.date).format('MM/DD');
   const strain = item.strain.length > 22 ? `${item.strain.slice(0, 22)}...` : item.strain;
 
-  const renderRightActions = (_progress, _translation, swipeable) => (
+  const renderRightActions = (
+    _progress: SharedValue<number>,
+    _translation: SharedValue<number>,
+    swipeable: SwipeableMethods
+  ) => (
     <TouchableOpacity
       style={styles.deleteButton}
       onPress={() => {
