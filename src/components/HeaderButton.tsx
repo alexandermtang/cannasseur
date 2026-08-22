@@ -12,7 +12,12 @@ import { Ionicons } from '@expo/vector-icons';
 const ICON_SIZE = 32;
 const BUTTON_SIZE = 36;
 
-const HeaderButton = ({ name, onPress }) => (
+interface HeaderButtonProps {
+  name: React.ComponentProps<typeof Ionicons>['name'];
+  onPress: () => void;
+}
+
+const HeaderButton = ({ name, onPress }: HeaderButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     hitSlop={12}

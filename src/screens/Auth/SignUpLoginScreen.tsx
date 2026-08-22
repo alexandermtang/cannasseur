@@ -1,7 +1,9 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SignUpLoginScreen = ({ navigation }) => (
+import type { AuthScreenProps } from '../../types/navigation';
+
+const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => (
   <View style={styles.container}>
     <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
     <Text style={styles.title}>cannasseur</Text>
@@ -62,6 +64,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 48
+  },
+  buttonText: {
+    fontFamily: 'WorkSans',
+    fontSize: 16
   }
 });
 export default SignUpLoginScreen;

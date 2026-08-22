@@ -1,22 +1,28 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-native';
 import moment from 'moment';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import StarRating from '../components/StarRating';
 import CircleRating from '../components/CircleRating';
 import HeaderButton from '../components/HeaderButton';
+import type { Log } from '../types/log';
+import type { AppScreenProps } from '../types/navigation';
 
-export const viewLogScreenOptions = ({ navigation, route }) => ({
+export const viewLogScreenOptions = ({
+  navigation,
+  route
+}: AppScreenProps<'ViewLog'>): NativeStackNavigationOptions => ({
   title: moment(route.params.log.date).format('MM/DD'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
   )
 });
 
-const ViewLogScreen = ({ navigation, route }) => {
-  const [ratingsType, setRatingsType] = useState('mood'); // or 'medical'
+const ViewLogScreen = ({ navigation, route }: AppScreenProps<'ViewLog'>) => {
+  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>('mood');
 
-  const log = (route.params && route.params.log) || {};
+  const log: Log = (route.params && route.params.log) || ({} as Log);
 
   return (
     <ScrollView style={styles.container}>
