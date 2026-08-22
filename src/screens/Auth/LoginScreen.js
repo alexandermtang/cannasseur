@@ -1,73 +1,74 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { supabase } from '../../lib/supabase';
 
-class LoginScreen extends React.Component {
-  state = {
-    email: '',
-    password: '',
-    error: '',
-    isLoading: false
-  };
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async onPress() {
-    const { email, password } = this.state;
-
+  const onPress = async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      this.setState({ error: 'Invalid email or password.', isLoading: false });
+      setError('Invalid email or password.');
+      setIsLoading(false);
       return;
     }
 
     // No navigate() here: onAuthStateChange in App.js swaps the stack.
-    this.setState({ isLoading: false });
-  }
+    setIsLoading(false);
+  };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <Spinner
-          visible={this.state.isLoading}
-          textContent={'Logging in...'}
-          textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
-        />
-        <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
-        <Text style={styles.title}>cannasseur</Text>
-        <View style={styles.inputs}>
-          <TextInput
-            autoCapitalize={'none'}
-            placeholder={'email'}
-            onChangeText={email => this.setState({ email, error: '' })}
-            style={styles.input}
-          />
-          <TextInput
-            autoCapitalize={'none'}
-            placeholder={'password'}
-            onChangeText={password => this.setState({ password, error: '' })}
-            style={styles.input}
-            secureTextEntry
-          />
-        </View>
-        <Text style={styles.error}>{this.state.error}</Text>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => {
-            this.setState({ isLoading: true });
-            this.onPress();
+  return (
+    <View style={styles.container}>
+      <Spinner
+        visible={isLoading}
+        textContent={'Logging in...'}
+        textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
+      />
+      <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+      <Text style={styles.title}>cannasseur</Text>
+      <View style={styles.inputs}>
+        <TextInput
+          autoCapitalize={'none'}
+          placeholder={'email'}
+          onChangeText={email => {
+            setEmail(email);
+            setError('');
           }}
-        >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>LOG IN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack()}>
-          <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
-        </TouchableOpacity>
+          style={styles.input}
+        />
+        <TextInput
+          autoCapitalize={'none'}
+          placeholder={'password'}
+          onChangeText={password => {
+            setPassword(password);
+            setError('');
+          }}
+          style={styles.input}
+          secureTextEntry
+        />
       </View>
-    );
-  }
-}
+      <Text style={styles.error}>{error}</Text>
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={() => {
+          setIsLoading(true);
+          onPress();
+        }}
+      >
+        <Text style={[styles.buttonText, { color: '#fff' }]}>LOG IN</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-native';
 import moment from 'moment';
 
@@ -13,128 +13,112 @@ export const viewLogScreenOptions = ({ navigation, route }) => ({
   )
 });
 
-class ViewLogScreen extends React.Component {
-  state = {
-    ratingsType: 'mood' // or 'medical'
-  };
+const ViewLogScreen = ({ navigation, route }) => {
+  const [ratingsType, setRatingsType] = useState('mood'); // or 'medical'
 
-  render() {
-    const log = (this.props.route.params && this.props.route.params.log) || {};
+  const log = (route.params && route.params.log) || {};
 
-    return (
-      <ScrollView style={styles.container}>
-        <View style={styles.strainContainer}>
-          <Text style={styles.strain}>{log.strain}</Text>
-        </View>
-        <View style={styles.finalRatingContainer}>
-          <Text style={styles.label}>FINAL RATING</Text>
-          <StarRating
-            disabled={true}
-            maxStars={5}
-            starStyle={{ fontSize: 32 }}
-            containerStyle={{ padding: 8, height: 48, width: '100%' }}
-            rating={log.finalRating}
-          />
-        </View>
-        <View style={styles.line} />
-        <View style={styles.typeContainer}>
-          <Text style={styles.typeText}>TYPE</Text>
-          <Text style={styles.type}>{log.type}</Text>
-        </View>
-        <View style={styles.line} />
-        <View style={styles.ratingsTypeContainer}>
-          <TouchableOpacity
-            style={styles.half}
-            onPress={() => {
-              this.setState({ ratingsType: 'mood' });
-            }}
-          >
-            <Text
-              style={[
-                styles.label,
-                { color: this.state.ratingsType === 'mood' ? '#000' : '#9B9B9B' }
-              ]}
-            >
-              MOOD
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.half}
-            onPress={() => {
-              this.setState({ ratingsType: 'medical' });
-            }}
-          >
-            <Text
-              style={[
-                styles.label,
-                { color: this.state.ratingsType === 'medical' ? '#000' : '#9B9B9B' }
-              ]}
-            >
-              MEDICAL
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {this.state.ratingsType === 'mood' && (
-          <View style={styles.ratingsContainer}>
-            <View style={styles.left}>
-              <Text style={styles.rating}>Happy</Text>
-              <Text style={styles.rating}>Creative</Text>
-              <Text style={styles.rating}>Active</Text>
-              <Text style={styles.rating}>Relaxed</Text>
-              <Text style={styles.rating}>Sleepy</Text>
-            </View>
-            <View style={styles.right}>
-              <CircleRating disabled={true} rating={log.happy} />
-              <CircleRating disabled={true} rating={log.creative} />
-              <CircleRating disabled={true} rating={log.active} />
-              <CircleRating disabled={true} rating={log.relaxed} />
-              <CircleRating disabled={true} rating={log.sleepy} />
-            </View>
-          </View>
-        )}
-        {this.state.ratingsType === 'medical' && (
-          <View style={styles.ratingsContainer}>
-            <View style={styles.left}>
-              <Text style={styles.rating}>Anxiety</Text>
-              <Text style={styles.rating}>Migraines</Text>
-              <Text style={styles.rating}>Depression</Text>
-              <Text style={styles.rating}>Pain</Text>
-              <Text style={styles.rating}>Insomnia</Text>
-            </View>
-            <View style={styles.right}>
-              <CircleRating disabled={true} rating={log.anxiety} />
-              <CircleRating disabled={true} rating={log.migraines} />
-              <CircleRating disabled={true} rating={log.depression} />
-              <CircleRating disabled={true} rating={log.pain} />
-              <CircleRating disabled={true} rating={log.insomnia} />
-            </View>
-          </View>
-        )}
-        {log.tags && <View style={styles.line} />}
-        {log.tags && (
-          <Text style={[styles.label, { paddingLeft: 16, marginTop: 16 }]}>TAGS</Text>
-        )}
-        <View style={styles.tagsContainer}>
-          {(log.tags || []).map((tag, i) => {
-            return (
-              <View style={styles.button} key={i}>
-                <Text style={styles.buttonText}>{tag}</Text>
-              </View>
-            );
-          })}
-        </View>
-        {log.notes && <View style={styles.line} />}
-        {log.notes && <Text style={styles.notes}>"{log.notes}"</Text>}
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.strainContainer}>
+        <Text style={styles.strain}>{log.strain}</Text>
+      </View>
+      <View style={styles.finalRatingContainer}>
+        <Text style={styles.label}>FINAL RATING</Text>
+        <StarRating
+          disabled={true}
+          maxStars={5}
+          starStyle={{ fontSize: 32 }}
+          containerStyle={{ padding: 8, height: 48, width: '100%' }}
+          rating={log.finalRating}
+        />
+      </View>
+      <View style={styles.line} />
+      <View style={styles.typeContainer}>
+        <Text style={styles.typeText}>TYPE</Text>
+        <Text style={styles.type}>{log.type}</Text>
+      </View>
+      <View style={styles.line} />
+      <View style={styles.ratingsTypeContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.editButton]}
-          onPress={() => this.props.navigation.push('LogNewSession', { log })}
+          style={styles.half}
+          onPress={() => {
+            setRatingsType('mood');
+          }}
         >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>EDIT</Text>
+          <Text style={[styles.label, { color: ratingsType === 'mood' ? '#000' : '#9B9B9B' }]}>
+            MOOD
+          </Text>
         </TouchableOpacity>
-      </ScrollView>
-    );
-  }
-}
+        <TouchableOpacity
+          style={styles.half}
+          onPress={() => {
+            setRatingsType('medical');
+          }}
+        >
+          <Text style={[styles.label, { color: ratingsType === 'medical' ? '#000' : '#9B9B9B' }]}>
+            MEDICAL
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {ratingsType === 'mood' && (
+        <View style={styles.ratingsContainer}>
+          <View style={styles.left}>
+            <Text style={styles.rating}>Happy</Text>
+            <Text style={styles.rating}>Creative</Text>
+            <Text style={styles.rating}>Active</Text>
+            <Text style={styles.rating}>Relaxed</Text>
+            <Text style={styles.rating}>Sleepy</Text>
+          </View>
+          <View style={styles.right}>
+            <CircleRating disabled={true} rating={log.happy} />
+            <CircleRating disabled={true} rating={log.creative} />
+            <CircleRating disabled={true} rating={log.active} />
+            <CircleRating disabled={true} rating={log.relaxed} />
+            <CircleRating disabled={true} rating={log.sleepy} />
+          </View>
+        </View>
+      )}
+      {ratingsType === 'medical' && (
+        <View style={styles.ratingsContainer}>
+          <View style={styles.left}>
+            <Text style={styles.rating}>Anxiety</Text>
+            <Text style={styles.rating}>Migraines</Text>
+            <Text style={styles.rating}>Depression</Text>
+            <Text style={styles.rating}>Pain</Text>
+            <Text style={styles.rating}>Insomnia</Text>
+          </View>
+          <View style={styles.right}>
+            <CircleRating disabled={true} rating={log.anxiety} />
+            <CircleRating disabled={true} rating={log.migraines} />
+            <CircleRating disabled={true} rating={log.depression} />
+            <CircleRating disabled={true} rating={log.pain} />
+            <CircleRating disabled={true} rating={log.insomnia} />
+          </View>
+        </View>
+      )}
+      {log.tags && <View style={styles.line} />}
+      {log.tags && <Text style={[styles.label, { paddingLeft: 16, marginTop: 16 }]}>TAGS</Text>}
+      <View style={styles.tagsContainer}>
+        {(log.tags || []).map((tag, i) => {
+          return (
+            <View style={styles.button} key={i}>
+              <Text style={styles.buttonText}>{tag}</Text>
+            </View>
+          );
+        })}
+      </View>
+      {log.notes && <View style={styles.line} />}
+      {log.notes && <Text style={styles.notes}>"{log.notes}"</Text>}
+      <TouchableOpacity
+        style={[styles.button, styles.editButton]}
+        onPress={() => navigation.push('LogNewSession', { log })}
+      >
+        <Text style={[styles.buttonText, { color: '#fff' }]}>EDIT</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import BlackButton from '../components/BlackButton';
@@ -12,49 +12,45 @@ export const meScreenOptions = ({ navigation }) => ({
   )
 });
 
-class MeScreen extends React.Component {
-  state = {
-    name: '',
-    email: ''
-  };
+const MeScreen = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
 
-  async componentDidMount() {
-    const userId = await currentUserId();
-    if (!userId) {
-      return;
-    }
+  useEffect(() => {
+    (async () => {
+      const userId = await currentUserId();
+      if (!userId) {
+        return;
+      }
 
-    // Email lives on the auth user, not on profiles — single source of truth.
-    const [{ data: profile }, { data: userData }] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select('name')
-        .eq('id', userId)
-        .single(),
-      supabase.auth.getUser()
-    ]);
+      // Email lives on the auth user, not on profiles — single source of truth.
+      const [{ data: profile }, { data: userData }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', userId)
+          .single(),
+        supabase.auth.getUser()
+      ]);
 
-    this.setState({
-      name: profile ? profile.name : '',
-      email: userData.user ? userData.user.email : ''
-    });
-  }
+      setName(profile ? profile.name : '');
+      setEmail(userData.user ? userData.user.email : '');
+    })();
+  }, []);
 
-  async logout() {
+  const logout = async () => {
     // onAuthStateChange in App.js swaps back to the auth stack.
     await supabase.auth.signOut();
-  }
+  };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>{this.state.name}</Text>
-        <Text style={[styles.text, { marginBottom: 64 }]}>{this.state.email}</Text>
-        <BlackButton onPress={() => this.logout()} text={'LOG OUT'} />
-      </View>
-    );
-  }
-}
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>{name}</Text>
+      <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
+      <BlackButton onPress={() => logout()} text={'LOG OUT'} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
