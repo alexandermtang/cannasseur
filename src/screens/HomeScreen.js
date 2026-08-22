@@ -1,9 +1,7 @@
 import React from 'react';
 import {
   Animated,
-  AsyncStorage,
   ActivityIndicator,
-  Easing,
   StyleSheet,
   Text,
   View,
@@ -11,27 +9,25 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   FlatList,
+  ScrollView,
   RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as firebase from 'firebase';
-import { ScrollView } from 'react-native-gesture-handler';
 
 import ListItem from '../components/ListItem';
 import BlackButton from '../components/BlackButton';
+import HeaderButton from '../components/HeaderButton';
+import { supabase, currentUserId } from '../lib/supabase';
+import { fromRow } from '../lib/logs';
+
+export const homeScreenOptions = ({ navigation }) => ({
+  title: 'LOG BOOK',
+  headerRight: () => (
+    <HeaderButton name={'person-circle-outline'} onPress={() => navigation.push('Me')} />
+  )
+});
 
 class HomeScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: 'LOG BOOK',
-      headerRight: (
-        <TouchableOpacity style={{ right: 16 }} onPress={() => navigation.push('Me')}>
-          <Ionicons name={'ios-contact-outline'} size={32} />
-        </TouchableOpacity>
-      )
-    };
-  };
-
   state = {
     allLogs: [],
     filteredLogs: [],
@@ -43,44 +39,37 @@ class HomeScreen extends React.Component {
   };
 
   async getLogs() {
-    try {
-      const userId = await AsyncStorage.getItem('userId');
-      const snapshot = await firebase
-        .database()
-        .ref(`logs/${userId}`)
-        .orderByKey()
-        .once('value');
-
-      const logs = snapshot.val();
-      if (logs) {
-        const allLogs = Object.keys(logs)
-          .reverse()
-          .map(date => ({ date, ...logs[date] }));
-
-        this.setState({
-          allLogs,
-          filteredLogs: allLogs,
-          isLoading: false
-        });
-      } else {
-        this.setState({
-          allLogs: [],
-          filteredLogs: [],
-          isLoading: false
-        });
-      }
-    } catch (error) {
-      console.error(error);
+    const userId = await currentUserId();
+    if (!userId) {
+      return;
     }
+
+    const { data, error } = await supabase
+      .from('logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('logged_at', { ascending: false });
+
+    if (error) {
+      console.error(error);
+      return this.setState({ isLoading: false });
+    }
+
+    const allLogs = data.map(fromRow);
+    this.setState({ allLogs, filteredLogs: allLogs, isLoading: false });
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.getLogs();
+
+    // Replaces componentWillReceiveProps (removed in React 19) and the
+    // { forceUpdate: true } navigation param it keyed off.
+    this.unsubscribeFocus = this.props.navigation.addListener('focus', () => this.getLogs());
   }
 
-  async componentWillReceiveProps(nextProps) {
-    if (nextProps.navigation.state.params.forceUpdate) {
-      this.getLogs();
+  componentWillUnmount() {
+    if (this.unsubscribeFocus) {
+      this.unsubscribeFocus();
     }
   }
 
@@ -99,29 +88,22 @@ class HomeScreen extends React.Component {
     }
   }
 
+  // `bottom` is a layout property, so this cannot run on the native driver.
+  animateSheet(toValue, onComplete) {
+    Animated.timing(this.state.bottomAnim, {
+      toValue,
+      duration: 250,
+      useNativeDriver: false
+    }).start(onComplete);
+  }
+
   showModal() {
-    Animated.timing(
-      // Animate over time
-      this.state.bottomAnim, // The animated value to drive
-      {
-        toValue: 0, // Animate to opacity: 1 (opaque)
-        duration: 250 // Make it take a while
-      }
-    ).start();
+    this.animateSheet(0);
     this.setState({ showModal: true });
   }
 
   hideModal() {
-    Animated.timing(
-      // Animate over time
-      this.state.bottomAnim, // The animated value to drive
-      {
-        toValue: -600, // Animate to opacity: 1 (opaque)
-        duration: 250 // Make it take a while
-      }
-    ).start(finished => {
-      this.setState({ showModal: false });
-    });
+    this.animateSheet(-600, () => this.setState({ showModal: false }));
   }
 
   sortBy(type = 'mostRecent') {
@@ -143,14 +125,7 @@ class HomeScreen extends React.Component {
     }
 
     this.setState({ filterText });
-    Animated.timing(
-      // Animate over time
-      this.state.bottomAnim, // The animated value to drive
-      {
-        toValue: -600, // Animate to opacity: 1 (opaque)
-        duration: 250 // Make it take a while
-      }
-    ).start(finished => {
+    this.animateSheet(-600, () => {
       this.setState({ filteredLogs: tempLogs, showModal: false });
     });
   }
@@ -169,7 +144,7 @@ class HomeScreen extends React.Component {
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <View>
-            <Ionicons style={styles.searchIcon} name={'ios-search'} size={32} />
+            <Ionicons style={styles.searchIcon} name={'search'} size={32} />
             <TextInput
               style={styles.searchInput}
               placeholder={'Search strain or tag'}
@@ -177,7 +152,7 @@ class HomeScreen extends React.Component {
             />
           </View>
           <TouchableOpacity style={styles.filterContainer} onPress={() => this.showModal()}>
-            <Ionicons style={styles.filterIcon} name={'ios-funnel'} size={32} />
+            <Ionicons style={styles.filterIcon} name={'filter'} size={32} />
             <Text style={styles.filterText}>{this.state.filterText}</Text>
           </TouchableOpacity>
         </View>
@@ -188,8 +163,10 @@ class HomeScreen extends React.Component {
             <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>NO LOGS</Text>
           </View>
         ) : (
-          <ScrollView
+          <FlatList
             style={styles.logsContainer}
+            data={this.state.filteredLogs}
+            keyExtractor={item => item.id}
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
@@ -199,28 +176,25 @@ class HomeScreen extends React.Component {
                 }}
               />
             }
-          >
-            <FlatList
-              data={this.state.filteredLogs}
-              keyExtractor={(item, i) => i.toString()}
-              renderItem={({ item }) => (
-                <ListItem
-                  item={item}
-                  onPress={() => {
-                    this.props.navigation.push('ViewLog', { log: item });
-                  }}
-                  onPressDelete={async () => {
-                    const userId = await AsyncStorage.getItem('userId');
-                    await firebase
-                      .database()
-                      .ref(`logs/${userId}/${item.date}`)
-                      .remove();
-                    await this.getLogs();
-                  }}
-                />
-              )}
-            />
-          </ScrollView>
+            renderItem={({ item }) => (
+              <ListItem
+                item={item}
+                onPress={() => {
+                  this.props.navigation.push('ViewLog', { log: item });
+                }}
+                onPressDelete={async () => {
+                  const { error } = await supabase
+                    .from('logs')
+                    .delete()
+                    .eq('id', item.id);
+                  if (error) {
+                    return console.error(error);
+                  }
+                  await this.getLogs();
+                }}
+              />
+            )}
+          />
         )}
         <View style={styles.footerContainer}>
           <BlackButton
@@ -244,7 +218,7 @@ class HomeScreen extends React.Component {
               <View style={styles.modalHeaderContainer}>
                 <Ionicons
                   style={styles.closeIcon}
-                  name={'ios-close'}
+                  name={'close'}
                   size={32}
                   onPress={() => this.hideModal()}
                 />

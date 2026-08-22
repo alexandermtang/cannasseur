@@ -1,4 +1,41 @@
-node_modules/**/*
-.expo/*
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
 npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
 .env
+.env*.local
+
+# Firebase data export (Phase 0 backup — never commit)
+backup/
+
+# generated native folders
+/ios
+/android
+
+# Migration secrets (service_role key) — never commit
+.env.migration

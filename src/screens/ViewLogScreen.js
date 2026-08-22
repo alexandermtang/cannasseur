@@ -1,29 +1,25 @@
 import React from 'react';
 import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-native';
 import moment from 'moment';
-import { Ionicons } from '@expo/vector-icons';
-import StarRating from 'react-native-star-rating';
 
+import StarRating from '../components/StarRating';
 import CircleRating from '../components/CircleRating';
+import HeaderButton from '../components/HeaderButton';
+
+export const viewLogScreenOptions = ({ navigation, route }) => ({
+  title: moment(route.params.log.date).format('MM/DD'),
+  headerLeft: () => (
+    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+  )
+});
 
 class ViewLogScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: moment(navigation.state.params.log.date).format('MM/DD'),
-      headerLeft: (
-        <TouchableOpacity style={{ left: 16 }} onPress={() => navigation.goBack()}>
-          <Ionicons name={'ios-arrow-dropleft'} size={32} />
-        </TouchableOpacity>
-      )
-    };
-  };
-
   state = {
     ratingsType: 'mood' // or 'medical'
   };
 
   render() {
-    const log = this.props.navigation.getParam('log', {});
+    const log = (this.props.route.params && this.props.route.params.log) || {};
 
     return (
       <ScrollView style={styles.container}>

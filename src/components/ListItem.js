@@ -1,23 +1,34 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import moment from 'moment';
-import Swipeout from 'react-native-swipeout';
-import StarRating from 'react-native-star-rating';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+
+import StarRating from './StarRating';
+
+const DELETE_WIDTH = 96;
 
 const ListItem = ({ item, onPress, onPressDelete }) => {
   const date = moment(item.date).format('MM/DD');
   const strain = item.strain.length > 22 ? `${item.strain.slice(0, 22)}...` : item.strain;
 
-  const swipeoutBtns = [
-    {
-      text: 'DELETE',
-      onPress: () => onPressDelete(),
-      backgroundColor: '#000',
-      color: '#fff'
-    }
-  ];
+  const renderRightActions = (_progress, _translation, swipeable) => (
+    <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={() => {
+        swipeable.close();
+        onPressDelete();
+      }}
+    >
+      <Text style={styles.deleteText}>DELETE</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <Swipeout autoClose right={swipeoutBtns}>
+    <ReanimatedSwipeable
+      friction={2}
+      rightThreshold={DELETE_WIDTH / 2}
+      renderRightActions={renderRightActions}
+    >
       <TouchableOpacity style={styles.container} onPress={onPress}>
         <Text style={styles.text}>{`${date}\t${strain}`}</Text>
         <StarRating
@@ -27,7 +38,7 @@ const ListItem = ({ item, onPress, onPressDelete }) => {
           containerStyle={{ paddingRight: 16, width: '30%' }}
         />
       </TouchableOpacity>
-    </Swipeout>
+    </ReanimatedSwipeable>
   );
 };
 
@@ -46,6 +57,18 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontFamily: 'PlayfairDisplay-Regular'
+  },
+  deleteButton: {
+    width: DELETE_WIDTH,
+    height: 56,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  deleteText: {
+    color: '#fff',
+    fontFamily: 'WorkSans',
+    fontSize: 16
   }
 });
 

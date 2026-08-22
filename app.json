@@ -3,40 +3,27 @@
     "name": "cannasseur",
     "description": "Become your own cannabis expert",
     "slug": "cannasseur",
-    "privacy": "public",
-    "sdkVersion": "30.0.0",
-    "platforms": ["ios"],
-    "version": "1.0.5",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/cannabis.png",
+    "userInterfaceStyle": "light",
     "primaryColor": "#F4F3EF",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F4F3EF"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
     "assetBundlePatterns": ["**/*"],
+    "platforms": ["ios"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.alexandermtang.cannasseur"
     },
-    "android": {
-      "package": "com.alexandermtang.cannasseur"
-    },
-    "hooks": {
-      "postPublish": [
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
         {
-          "file": "sentry-expo/upload-sourcemaps",
-          "config": {
-            "organization": "alex-tang",
-            "project": "cannasseur",
-            "authToken": "979d1ee320f14a8a8000eec01d5f6383bb9cebfc1bfe4b20b4f7dbcf4146ed45"
-          }
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#F4F3EF"
         }
       ]
-    }
+    ]
   }
 }
