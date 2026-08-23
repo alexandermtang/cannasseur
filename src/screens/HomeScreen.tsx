@@ -251,9 +251,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         <HeaderButton name={'calendar-clear'} size={24} onPress={() => showYearFilterModal()} />
       )
     });
-    // headerLeft never depends on selectedYear — the icon never changes,
-    // only the title below does.
-  }, [navigation]);
+    // The icon itself never changes, but showYearFilterModal closes over
+    // showModal (to close Filter Options first if it's open) — this still
+    // needs to re-run when that changes, or the header button's onPress
+    // stays frozen on showModal's value from the very first render.
+  }, [navigation, showModal]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
