@@ -238,23 +238,50 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     });
   };
 
+  const availableYears = Array.from(
+    new Set(
+      allLogs
+        .map(log => (log.date ? new Date(log.date).getFullYear() : null))
+        .filter((year): year is number => year !== null)
+    )
+  ).sort((a, b) => b - a);
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <HeaderButton name={'calendar-clear'} size={24} onPress={() => showYearFilterModal()} />
-      )
+      // Only worth offering when there's actually more than one year to
+      // choose between.
+      headerLeft:
+        availableYears.length > 1
+          ? () => (
+              <HeaderButton
+                name={'calendar-clear'}
+                size={24}
+                onPress={() => showYearFilterModal()}
+              />
+            )
+          : undefined
     });
-    // The icon itself never changes, but showYearFilterModal closes over
-    // showModal (to close Filter Options first if it's open) — this still
-    // needs to re-run when that changes, or the header button's onPress
-    // stays frozen on showModal's value from the very first render.
-  }, [navigation, showModal]);
+    // The icon itself never changes shape, but showYearFilterModal closes
+    // over showModal (to close Filter Options first if it's open) — this
+    // still needs to re-run when that changes, or the header button's
+    // onPress stays frozen on showModal's value from the very first render.
+  }, [navigation, showModal, availableYears.length]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       title: selectedYear === null ? 'LOG BOOK' : `${selectedYear} LOG BOOK`
     });
   }, [navigation, selectedYear]);
+
+  useEffect(() => {
+    // The log book can collapse to a single year after this filter was
+    // already applied (e.g. deleting every other year's logs while
+    // filtered) — the icon that would let the user clear it just
+    // disappeared above, so clear it here instead of leaving them stuck.
+    if (availableYears.length <= 1 && selectedYear !== null) {
+      selectYear(null);
+    }
+  }, [availableYears.length, selectedYear]);
 
   const onRefresh = async () => {
     await getLogs();
@@ -264,14 +291,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const strainsSet = new Set<string>();
   filterByYear(allLogs, selectedYear).forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
-
-  const availableYears = Array.from(
-    new Set(
-      allLogs
-        .map(log => (log.date ? new Date(log.date).getFullYear() : null))
-        .filter((year): year is number => year !== null)
-    )
-  ).sort((a, b) => b - a);
 
   // ALL TIME row + one row per year + the modal's own header row, capped at
   // the same max height Filter Options uses (60% of the screen) — shorter
