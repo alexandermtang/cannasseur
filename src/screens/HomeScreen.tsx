@@ -65,6 +65,15 @@ const filterTextFor = (type: SortType): string => {
   return '';
 };
 
+// Phrasing for the empty state reads differently from the filter button's
+// own label — "ACTIVE MOOD" for a mood field, but just "INSOMNIA" (no
+// "MEDICAL" prefix) for a medical one.
+const emptyStateLabelFor = (type: SortType): string => {
+  if (isMoodField(type)) return `${type.toUpperCase()} MOOD`;
+  if (isMedicalField(type)) return type.toUpperCase();
+  return '';
+};
+
 const sortLogs = (logs: Log[], type: SortType): Log[] => {
   if (type === 'mostRecent') {
     const sorted = [...logs];
@@ -82,7 +91,12 @@ const sortLogs = (logs: Log[], type: SortType): Log[] => {
     // "Mood: Happy" implies "logs rated for happiness," not "every log."
     return logs
       .filter(log => log[type] > 0)
-      .sort((a, b) => b[type] - a[type]);
+      .sort(
+        (a, b) =>
+          b[type] - a[type] ||
+          (b.finalRating || 0) - (a.finalRating || 0) ||
+          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+      );
   }
   return logs;
 };
@@ -169,9 +183,13 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const sortBy = (type: SortType = 'mostRecent') => {
     setSortType(type);
     setFilterText(filterTextFor(type));
-    const tempLogs = sortLogs(searchLogs(allLogs, searchText), type);
+    // Set immediately, not in the animation callback below — the modal's
+    // dark overlay covers the list for the whole slide-down regardless, but
+    // deferring this let sortType (and the empty-state label it drives)
+    // update a beat before filteredLogs did, flashing the new filter's empty
+    // state over the old filter's stale results.
+    setFilteredLogs(sortLogs(searchLogs(allLogs, searchText), type));
     animateSheet(-600, () => {
-      setFilteredLogs(tempLogs);
       setShowModal(false);
     });
   };
@@ -206,7 +224,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         <ActivityIndicator size="large" color="#9b9b9b" />
       ) : filteredLogs.length === 0 ? (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>NO LOGS</Text>
+          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>
+            {isMoodField(sortType) || isMedicalField(sortType)
+              ? `NO LOGS FOR ${emptyStateLabelFor(sortType)}`
+              : 'NO LOGS'}
+          </Text>
         </View>
       ) : (
         <FlatList
