@@ -232,13 +232,16 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
-        <HeaderButton
-          name={selectedYear === null ? 'calendar-clear' : undefined}
-          label={selectedYear === null ? undefined : String(selectedYear)}
-          size={24}
-          onPress={() => showYearFilterModal()}
-        />
+        <HeaderButton name={'calendar-clear'} size={24} onPress={() => showYearFilterModal()} />
       )
+    });
+    // headerLeft never depends on selectedYear — the icon never changes,
+    // only the title below does.
+  }, [navigation]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: selectedYear === null ? 'LOG BOOK' : `${selectedYear} LOG BOOK`
     });
   }, [navigation, selectedYear]);
 
