@@ -191,6 +191,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const showFilterModal = () => {
+    if (showYearModal) {
+      animateYearSheet(-600, () => setShowYearModal(false));
+    }
     animateSheet(0);
     setShowModal(true);
   };
@@ -223,6 +226,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const showYearFilterModal = () => {
+    if (showModal) {
+      animateSheet(-600, () => setShowModal(false));
+    }
     animateYearSheet(0);
     setShowYearModal(true);
   };
