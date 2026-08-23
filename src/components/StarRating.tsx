@@ -22,6 +22,10 @@ export interface StarRatingProps {
   emptyStar?: IconName;
   fullStarColor?: string;
   emptyStarColor?: string;
+  // Mood/medical ratings are optional (0 = not rated), so tapping the
+  // current rating again clears it. The final 1-5 rating is required, so
+  // it stays plain tap-to-set.
+  allowClear?: boolean;
 }
 
 const StarRating = ({
@@ -34,7 +38,8 @@ const StarRating = ({
   fullStar = 'star',
   emptyStar = 'star-outline',
   fullStarColor = '#000',
-  emptyStarColor = '#d8d8d8'
+  emptyStarColor = '#d8d8d8',
+  allowClear = false
 }: StarRatingProps) => {
   const flattened = StyleSheet.flatten(starStyle) || {};
   const size = flattened.fontSize || DEFAULT_SIZE;
@@ -50,7 +55,9 @@ const StarRating = ({
             key={position}
             disabled={disabled}
             hitSlop={4}
-            onPress={() => selectedStar && selectedStar(position)}
+            onPress={() =>
+              selectedStar && selectedStar(allowClear && position === rating ? 0 : position)
+            }
           >
             <Ionicons
               name={isFilled ? fullStar : emptyStar}

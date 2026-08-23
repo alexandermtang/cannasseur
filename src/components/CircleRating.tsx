@@ -13,6 +13,7 @@ const CircleRating = (props: StarRatingProps) => (
     emptyStarColor={'#d8d8d8'}
     starStyle={{ fontSize: 32 }}
     containerStyle={{ padding: 8, height: 48 }}
+    allowClear={true}
     {...props}
   />
 );
