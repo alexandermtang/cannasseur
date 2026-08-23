@@ -178,9 +178,13 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const sortBy = (type: SortType = 'mostRecent') => {
     setSortType(type);
     setFilterText(filterTextFor(type));
-    const tempLogs = sortLogs(searchLogs(allLogs, searchText), type);
+    // Set immediately, not in the animation callback below — the modal's
+    // dark overlay covers the list for the whole slide-down regardless, but
+    // deferring this let sortType (and the empty-state label it drives)
+    // update a beat before filteredLogs did, flashing the new filter's empty
+    // state over the old filter's stale results.
+    setFilteredLogs(sortLogs(searchLogs(allLogs, searchText), type));
     animateSheet(-600, () => {
-      setFilteredLogs(tempLogs);
       setShowModal(false);
     });
   };
