@@ -74,6 +74,11 @@ const emptyStateLabelFor = (type: SortType): string => {
   return '';
 };
 
+const emptyStateMessage = (type: SortType, year: number | null): string => {
+  const base = isMoodField(type) || isMedicalField(type) ? `NO LOGS FOR ${emptyStateLabelFor(type)}` : 'NO LOGS';
+  return year === null ? base : `${base} IN ${year}`;
+};
+
 const sortLogs = (logs: Log[], type: SortType): Log[] => {
   if (type === 'mostRecent') {
     const sorted = [...logs];
@@ -284,9 +289,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
       ) : filteredLogs.length === 0 ? (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>
-            {isMoodField(sortType) || isMedicalField(sortType)
-              ? `NO LOGS FOR ${emptyStateLabelFor(sortType)}`
-              : 'NO LOGS'}
+            {emptyStateMessage(sortType, selectedYear)}
           </Text>
         </View>
       ) : (
