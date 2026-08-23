@@ -25,11 +25,13 @@ export interface HomeFilters {
   searchText: string;
 }
 
-let homeFilters: HomeFilters = {
+const defaultHomeFilters: HomeFilters = {
   sortType: 'mostRecent',
   selectedYear: null,
   searchText: ''
 };
+
+let homeFilters: HomeFilters = { ...defaultHomeFilters };
 
 export function getHomeFilters(): HomeFilters {
   return homeFilters;
@@ -37,4 +39,11 @@ export function getHomeFilters(): HomeFilters {
 
 export function setHomeFilters(next: Partial<HomeFilters>): void {
   homeFilters = { ...homeFilters, ...next };
+}
+
+// Otherwise one account's filters silently carry over onto the next
+// account's Home screen after a logout/login within the same app session —
+// call this on sign-out.
+export function resetHomeFilters(): void {
+  homeFilters = { ...defaultHomeFilters };
 }
