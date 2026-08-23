@@ -18,10 +18,11 @@ interface HeaderButtonProps {
   // rather than clipping.
   name?: React.ComponentProps<typeof Ionicons>['name'];
   label?: string;
+  size?: number;
   onPress: () => void;
 }
 
-const HeaderButton = ({ name, label, onPress }: HeaderButtonProps) => (
+const HeaderButton = ({ name, label, size = ICON_SIZE, onPress }: HeaderButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     hitSlop={12}
@@ -37,7 +38,7 @@ const HeaderButton = ({ name, label, onPress }: HeaderButtonProps) => (
     {label ? (
       <Text style={{ fontSize: 16, fontFamily: 'WorkSans', fontWeight: '600' }}>{label}</Text>
     ) : (
-      name && <Ionicons name={name} size={ICON_SIZE} />
+      name && <Ionicons name={name} size={size} />
     )}
   </TouchableOpacity>
 );

@@ -235,6 +235,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         <HeaderButton
           name={selectedYear === null ? 'calendar-clear' : undefined}
           label={selectedYear === null ? undefined : String(selectedYear)}
+          size={28}
           onPress={() => showYearFilterModal()}
         />
       )
