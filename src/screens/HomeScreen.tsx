@@ -206,7 +206,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         <ActivityIndicator size="large" color="#9b9b9b" />
       ) : filteredLogs.length === 0 ? (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>NO LOGS</Text>
+          <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>
+            {isMoodField(sortType) || isMedicalField(sortType)
+              ? `NO LOGS FOR ${filterText}`
+              : 'NO LOGS'}
+          </Text>
         </View>
       ) : (
         <FlatList
