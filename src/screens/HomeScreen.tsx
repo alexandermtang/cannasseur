@@ -251,7 +251,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const strainsSet = new Set<string>();
-  allLogs.forEach(log => strainsSet.add(log.strain));
+  filterByYear(allLogs, selectedYear).forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
 
   const availableYears = Array.from(
@@ -336,6 +336,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           <Text style={styles.strainsRecorded}>
             STRAIN
             {numStrains === 1 ? '' : 'S'} RECORDED
+            {selectedYear === null ? '' : ` IN ${selectedYear}`}
           </Text>
         </View>
       </View>
