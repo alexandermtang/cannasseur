@@ -76,8 +76,11 @@ const emptyStateLabelFor = (type: SortType): string => {
 };
 
 const emptyStateMessage = (type: SortType, year: number | null): string => {
-  const base = isMoodField(type) || isMedicalField(type) ? `NO LOGS FOR ${emptyStateLabelFor(type)}` : 'NO LOGS';
-  return year === null ? base : `${base} IN ${year}`;
+  const yearPrefix = year === null ? '' : `${year} `;
+  if (isMoodField(type) || isMedicalField(type)) {
+    return `NO ${yearPrefix}LOGS FOR ${emptyStateLabelFor(type)}`;
+  }
+  return `NO ${yearPrefix}LOGS`;
 };
 
 const sortLogs = (logs: Log[], type: SortType): Log[] => {
