@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import type { Session } from '@supabase/supabase-js';
 
 import { supabase } from './src/lib/supabase';
+import { resetHomeFilters } from './src/lib/homeFilters';
 import type { AuthStackParamList, AppStackParamList } from './src/types/navigation';
 
 import LoginScreen from './src/screens/Auth/LoginScreen';
@@ -92,6 +93,13 @@ const App = () => {
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      // Covers every way a session can end (the LOG OUT button, an expired
+      // or revoked token, etc.), not just the explicit sign-out action —
+      // otherwise the next account to sign in on this device could inherit
+      // stale Home filters from whoever was signed in before.
+      if (!nextSession) {
+        resetHomeFilters();
+      }
       setSession(nextSession);
     });
 

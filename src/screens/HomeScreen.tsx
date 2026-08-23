@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import {
   Animated,
   ActivityIndicator,
@@ -10,7 +10,8 @@ import {
   TouchableHighlight,
   FlatList,
   ScrollView,
-  RefreshControl
+  RefreshControl,
+  useWindowDimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -20,6 +21,18 @@ import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { fromRow } from '../lib/logs';
+import { getHomeFilters, setHomeFilters } from '../lib/homeFilters';
+import type { SortType } from '../lib/homeFilters';
+import {
+  isMoodField,
+  isMedicalField,
+  filterTextFor,
+  emptyStateLabelFor,
+  emptyStateMessage,
+  sortLogs,
+  searchLogs,
+  filterByYear
+} from '../lib/homeLogFilters';
 import type { Log } from '../types/log';
 import type { AppScreenProps } from '../types/navigation';
 
@@ -32,94 +45,24 @@ export const homeScreenOptions = ({
   )
 });
 
-type SortType =
-  | 'mostRecent'
-  | 'topRated'
-  | 'happy'
-  | 'creative'
-  | 'active'
-  | 'relaxed'
-  | 'sleepy'
-  | 'anxiety'
-  | 'migraines'
-  | 'depression'
-  | 'pain'
-  | 'insomnia';
-
-const MOOD_TYPES = ['happy', 'creative', 'active', 'relaxed', 'sleepy'] as const;
-const MEDICAL_TYPES = ['anxiety', 'migraines', 'depression', 'pain', 'insomnia'] as const;
-
-type MoodField = (typeof MOOD_TYPES)[number];
-type MedicalField = (typeof MEDICAL_TYPES)[number];
-
-const isMoodField = (type: SortType): type is MoodField =>
-  (MOOD_TYPES as readonly string[]).includes(type);
-const isMedicalField = (type: SortType): type is MedicalField =>
-  (MEDICAL_TYPES as readonly string[]).includes(type);
-
-const filterTextFor = (type: SortType): string => {
-  if (type === 'mostRecent') return 'MOST RECENT';
-  if (type === 'topRated') return 'TOP RATED';
-  if (isMoodField(type)) return `MOOD: ${type.toUpperCase()}`;
-  if (isMedicalField(type)) return `MEDICAL: ${type.toUpperCase()}`;
-  return '';
-};
-
-// Phrasing for the empty state reads differently from the filter button's
-// own label — "ACTIVE MOOD" for a mood field, but just "INSOMNIA" (no
-// "MEDICAL" prefix) for a medical one.
-const emptyStateLabelFor = (type: SortType): string => {
-  if (isMoodField(type)) return `${type.toUpperCase()} MOOD`;
-  if (isMedicalField(type)) return type.toUpperCase();
-  return '';
-};
-
-const sortLogs = (logs: Log[], type: SortType): Log[] => {
-  if (type === 'mostRecent') {
-    const sorted = [...logs];
-    sorted.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-    return sorted;
-  }
-  if (type === 'topRated') {
-    const sorted = [...logs];
-    sorted.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
-    return sorted;
-  }
-  if (isMoodField(type) || isMedicalField(type)) {
-    // A 0 means that mood/medical effect wasn't rated at all for that log —
-    // filtering it out rather than just sorting it to the bottom, since
-    // "Mood: Happy" implies "logs rated for happiness," not "every log."
-    return logs
-      .filter(log => log[type] > 0)
-      .sort(
-        (a, b) =>
-          b[type] - a[type] ||
-          (b.finalRating || 0) - (a.finalRating || 0) ||
-          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
-      );
-  }
-  return logs;
-};
-
-const searchLogs = (logs: Log[], searchText: string): Log[] => {
-  if (searchText === '') return logs;
-  return logs.filter(
-    log =>
-      log.strain.toLowerCase().includes(searchText.toLowerCase()) ||
-      (log.tags || []).some(tag => tag.toLowerCase().includes(searchText.toLowerCase()))
-  );
-};
+const MODAL_ROW_HEIGHT = 56; // matches FilterButton and modalHeaderContainer
 
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
+  const { height: windowHeight } = useWindowDimensions();
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [sortType, setSortType] = useState<SortType>('mostRecent');
-  const [filterText, setFilterText] = useState('MOST RECENT');
-  const [searchText, setSearchText] = useState('');
+  const [sortType, setSortType] = useState<SortType>(() => getHomeFilters().sortType);
+  const [filterText, setFilterText] = useState(() => filterTextFor(getHomeFilters().sortType));
+  const [searchText, setSearchText] = useState(() => getHomeFilters().searchText);
+  const [selectedYear, setSelectedYear] = useState<number | null>(
+    () => getHomeFilters().selectedYear
+  );
+  const [showYearModal, setShowYearModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
+  const yearBottomAnim = useRef(new Animated.Value(-600)).current;
 
   const getLogs = useCallback(async () => {
     const userId = await currentUserId();
@@ -141,12 +84,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    // Re-apply whatever search/sort was active — otherwise a refetch (e.g. on
-    // focus, after coming back from ViewLog) silently drops them back to
-    // unfiltered DB order.
-    setFilteredLogs(sortLogs(searchLogs(logs, searchText), sortType));
+    // Re-apply whatever search/sort/year was active — otherwise a refetch
+    // (e.g. on focus, after coming back from ViewLog) silently drops them
+    // back to unfiltered DB order.
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(logs, selectedYear), searchText), sortType));
     setIsLoading(false);
-  }, [sortType, searchText]);
+  }, [sortType, searchText, selectedYear]);
 
   useEffect(() => {
     getLogs();
@@ -159,7 +102,8 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const search = (text: string) => {
     setSearchText(text);
-    setFilteredLogs(sortLogs(searchLogs(allLogs, text), sortType));
+    setHomeFilters({ searchText: text });
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), text), sortType));
   };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
@@ -172,6 +116,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const showFilterModal = () => {
+    if (showYearModal) {
+      animateYearSheet(-600, () => setShowYearModal(false));
+    }
     animateSheet(0);
     setShowModal(true);
   };
@@ -183,16 +130,108 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const sortBy = (type: SortType = 'mostRecent') => {
     setSortType(type);
     setFilterText(filterTextFor(type));
+    setHomeFilters({ sortType: type });
     // Set immediately, not in the animation callback below — the modal's
     // dark overlay covers the list for the whole slide-down regardless, but
     // deferring this let sortType (and the empty-state label it drives)
     // update a beat before filteredLogs did, flashing the new filter's empty
     // state over the old filter's stale results.
-    setFilteredLogs(sortLogs(searchLogs(allLogs, searchText), type));
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), searchText), type));
     animateSheet(-600, () => {
       setShowModal(false);
     });
   };
+
+  // `bottom` is a layout property, so this cannot run on the native driver.
+  const animateYearSheet = (toValue: number, onComplete?: () => void) => {
+    Animated.timing(yearBottomAnim, {
+      toValue,
+      duration: 250,
+      useNativeDriver: false
+    }).start(onComplete);
+  };
+
+  const showYearFilterModal = () => {
+    if (showModal) {
+      animateSheet(-600, () => setShowModal(false));
+    }
+    animateYearSheet(0);
+    setShowYearModal(true);
+  };
+
+  const hideYearModal = () => {
+    animateYearSheet(-600, () => setShowYearModal(false));
+  };
+
+  const selectYear = (year: number | null) => {
+    setSelectedYear(year);
+    // Changing the year always resets sort back to Most Recent — the
+    // search term is unaffected.
+    setSortType('mostRecent');
+    setFilterText(filterTextFor('mostRecent'));
+    setHomeFilters({ selectedYear: year, sortType: 'mostRecent' });
+    setFilteredLogs(
+      sortLogs(searchLogs(filterByYear(allLogs, year), searchText), 'mostRecent')
+    );
+    animateYearSheet(-600, () => {
+      setShowYearModal(false);
+    });
+  };
+
+  const availableYears = Array.from(
+    new Set(
+      allLogs
+        .map(log => (log.date ? new Date(log.date).getFullYear() : null))
+        .filter((year): year is number => year !== null)
+    )
+  ).sort((a, b) => b - a);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      // Only worth offering when there's actually more than one year to
+      // choose between.
+      headerLeft:
+        availableYears.length > 1
+          ? () => (
+              <HeaderButton
+                name={'calendar-clear'}
+                size={24}
+                onPress={() => showYearFilterModal()}
+              />
+            )
+          : undefined
+    });
+    // The icon itself never changes shape, but showYearFilterModal closes
+    // over showModal (to close Filter Options first if it's open) — this
+    // still needs to re-run when that changes, or the header button's
+    // onPress stays frozen on showModal's value from the very first render.
+  }, [navigation, showModal, availableYears.length]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: selectedYear === null ? 'LOG BOOK' : `${selectedYear} LOG BOOK`
+    });
+  }, [navigation, selectedYear]);
+
+  useEffect(() => {
+    // Gated on !isLoading — allLogs (and so availableYears) starts empty on
+    // every fresh mount until getLogs() resolves, which made this fire
+    // spuriously on mount and immediately clear a just-restored year filter
+    // before the real data even loaded.
+    //
+    // The log book can collapse to a single year after this filter was
+    // already applied (e.g. deleting every other year's logs while
+    // filtered) — the icon that would let the user clear it just
+    // disappeared above, so clear it here instead of leaving them stuck.
+    // Deliberately not selectYear(null): this is an automatic cleanup
+    // reacting to deleted logs, not a real year change, so it shouldn't
+    // also reset an unrelated sort filter the user never touched.
+    if (!isLoading && availableYears.length <= 1 && selectedYear !== null) {
+      setSelectedYear(null);
+      setHomeFilters({ selectedYear: null });
+      setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, null), searchText), sortType));
+    }
+  }, [isLoading, availableYears.length, selectedYear]);
 
   const onRefresh = async () => {
     await getLogs();
@@ -200,8 +239,16 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const strainsSet = new Set<string>();
-  allLogs.forEach(log => strainsSet.add(log.strain));
+  filterByYear(allLogs, selectedYear).forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
+
+  // ALL TIME row + one row per year + the modal's own header row, capped at
+  // the same max height Filter Options uses (60% of the screen) — shorter
+  // when there aren't enough years to need it.
+  const yearModalHeight = Math.min(
+    MODAL_ROW_HEIGHT * (availableYears.length + 2),
+    windowHeight * 0.6
+  );
 
   return (
     <View style={styles.container}>
@@ -225,9 +272,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
       ) : filteredLogs.length === 0 ? (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>
-            {isMoodField(sortType) || isMedicalField(sortType)
-              ? `NO LOGS FOR ${emptyStateLabelFor(sortType)}`
-              : 'NO LOGS'}
+            {emptyStateMessage(sortType, selectedYear)}
           </Text>
         </View>
       ) : (
@@ -277,40 +322,69 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           <Text style={styles.strainsRecorded}>
             STRAIN
             {numStrains === 1 ? '' : 'S'} RECORDED
+            {selectedYear === null ? '' : ` IN ${selectedYear}`}
           </Text>
         </View>
       </View>
+      {(showModal || showYearModal) && (
+        // Shared across both modals so it stays mounted continuously through
+        // a Filter Options <-> Select Year transition — two separate copies
+        // (one per modal) would briefly stack and read as doubly dark.
+        <TouchableHighlight
+          style={styles.top}
+          onPress={() => {
+            if (showModal) hideModal();
+            if (showYearModal) hideYearModal();
+          }}
+        >
+          <View />
+        </TouchableHighlight>
+      )}
       {showModal && (
-        <View style={styles.modal}>
-          <TouchableHighlight style={styles.top} onPress={() => hideModal()}>
-            <View />
-          </TouchableHighlight>
-          <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
-            <View style={styles.modalHeaderContainer}>
-              <Ionicons
-                style={styles.closeIcon}
-                name={'close'}
-                size={32}
-                onPress={() => hideModal()}
-              />
-              <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
-            </View>
-            <ScrollView style={{ paddingBottom: 56 }}>
-              <FilterButton onPress={() => sortBy('mostRecent')} text={'MOST RECENT'} />
-              <FilterButton onPress={() => sortBy('topRated')} text={'TOP RATED'} />
-              <FilterButton onPress={() => sortBy('happy')} text={'MOOD: HAPPY'} />
-              <FilterButton onPress={() => sortBy('creative')} text={'MOOD: CREATIVE'} />
-              <FilterButton onPress={() => sortBy('active')} text={'MOOD: ACTIVE'} />
-              <FilterButton onPress={() => sortBy('relaxed')} text={'MOOD: RELAXED'} />
-              <FilterButton onPress={() => sortBy('sleepy')} text={'MOOD: SLEEPY'} />
-              <FilterButton onPress={() => sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
-              <FilterButton onPress={() => sortBy('migraines')} text={'MEDICAL: MIGRAINES'} />
-              <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
-              <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
-              <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
-            </ScrollView>
-          </Animated.View>
-        </View>
+        <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
+          <View style={styles.modalHeaderContainer}>
+            <Ionicons
+              style={styles.closeIcon}
+              name={'close'}
+              size={32}
+              onPress={() => hideModal()}
+            />
+            <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
+          </View>
+          <ScrollView style={{ paddingBottom: 56 }}>
+            <FilterButton onPress={() => sortBy('mostRecent')} text={'MOST RECENT'} />
+            <FilterButton onPress={() => sortBy('topRated')} text={'TOP RATED'} />
+            <FilterButton onPress={() => sortBy('happy')} text={'MOOD: HAPPY'} />
+            <FilterButton onPress={() => sortBy('creative')} text={'MOOD: CREATIVE'} />
+            <FilterButton onPress={() => sortBy('active')} text={'MOOD: ACTIVE'} />
+            <FilterButton onPress={() => sortBy('relaxed')} text={'MOOD: RELAXED'} />
+            <FilterButton onPress={() => sortBy('sleepy')} text={'MOOD: SLEEPY'} />
+            <FilterButton onPress={() => sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
+            <FilterButton onPress={() => sortBy('migraines')} text={'MEDICAL: MIGRAINES'} />
+            <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
+            <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
+            <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
+          </ScrollView>
+        </Animated.View>
+      )}
+      {showYearModal && (
+        <Animated.View style={[styles.bottom, { bottom: yearBottomAnim, height: yearModalHeight }]}>
+          <View style={styles.modalHeaderContainer}>
+            <Ionicons
+              style={styles.closeIcon}
+              name={'close'}
+              size={32}
+              onPress={() => hideYearModal()}
+            />
+            <Text style={styles.filterOptionsHeaderText}>Select Year</Text>
+          </View>
+          <ScrollView style={{ paddingBottom: 56 }}>
+            <FilterButton onPress={() => selectYear(null)} text={'ALL TIME'} />
+            {availableYears.map(year => (
+              <FilterButton key={year} onPress={() => selectYear(year)} text={String(year)} />
+            ))}
+          </ScrollView>
+        </Animated.View>
       )}
     </View>
   );
@@ -393,13 +467,6 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 
-  modal: {
-    height: '100%',
-    width: '100%',
-    position: 'absolute',
-    zIndex: 500
-    // bottom: 90
-  },
   top: {
     height: '100%',
     width: '100%',

@@ -14,10 +14,11 @@ const BUTTON_SIZE = 36;
 
 interface HeaderButtonProps {
   name: React.ComponentProps<typeof Ionicons>['name'];
+  size?: number;
   onPress: () => void;
 }
 
-const HeaderButton = ({ name, onPress }: HeaderButtonProps) => (
+const HeaderButton = ({ name, size = ICON_SIZE, onPress }: HeaderButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     hitSlop={12}
@@ -28,7 +29,7 @@ const HeaderButton = ({ name, onPress }: HeaderButtonProps) => (
       justifyContent: 'center'
     }}
   >
-    <Ionicons name={name} size={ICON_SIZE} />
+    <Ionicons name={name} size={size} />
   </TouchableOpacity>
 );
 
