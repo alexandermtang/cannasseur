@@ -21,6 +21,8 @@ import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { fromRow } from '../lib/logs';
+import { getHomeFilters, setHomeFilters } from '../lib/homeFilters';
+import type { SortType } from '../lib/homeFilters';
 import type { Log } from '../types/log';
 import type { AppScreenProps } from '../types/navigation';
 
@@ -32,20 +34,6 @@ export const homeScreenOptions = ({
     <HeaderButton name={'person-circle-outline'} onPress={() => navigation.push('Me')} />
   )
 });
-
-type SortType =
-  | 'mostRecent'
-  | 'topRated'
-  | 'happy'
-  | 'creative'
-  | 'active'
-  | 'relaxed'
-  | 'sleepy'
-  | 'anxiety'
-  | 'migraines'
-  | 'depression'
-  | 'pain'
-  | 'insomnia';
 
 const MOOD_TYPES = ['happy', 'creative', 'active', 'relaxed', 'sleepy'] as const;
 const MEDICAL_TYPES = ['anxiety', 'migraines', 'depression', 'pain', 'insomnia'] as const;
@@ -131,10 +119,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [sortType, setSortType] = useState<SortType>('mostRecent');
-  const [filterText, setFilterText] = useState('MOST RECENT');
-  const [searchText, setSearchText] = useState('');
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [sortType, setSortType] = useState<SortType>(() => getHomeFilters().sortType);
+  const [filterText, setFilterText] = useState(() => filterTextFor(getHomeFilters().sortType));
+  const [searchText, setSearchText] = useState(() => getHomeFilters().searchText);
+  const [selectedYear, setSelectedYear] = useState<number | null>(
+    () => getHomeFilters().selectedYear
+  );
   const [showYearModal, setShowYearModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
@@ -178,6 +168,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const search = (text: string) => {
     setSearchText(text);
+    setHomeFilters({ searchText: text });
     setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), text), sortType));
   };
 
@@ -205,6 +196,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const sortBy = (type: SortType = 'mostRecent') => {
     setSortType(type);
     setFilterText(filterTextFor(type));
+    setHomeFilters({ sortType: type });
     // Set immediately, not in the animation callback below — the modal's
     // dark overlay covers the list for the whole slide-down regardless, but
     // deferring this let sortType (and the empty-state label it drives)
@@ -239,6 +231,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const selectYear = (year: number | null) => {
     setSelectedYear(year);
+    setHomeFilters({ selectedYear: year });
     setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, year), searchText), sortType));
     animateYearSheet(-600, () => {
       setShowYearModal(false);
