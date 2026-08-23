@@ -20,7 +20,9 @@ export const viewLogScreenOptions = ({
 });
 
 const ViewLogScreen = ({ navigation, route }: AppScreenProps<'ViewLog'>) => {
-  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>('mood');
+  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>(
+    route.params?.initialRatingsType || 'mood'
+  );
 
   const log: Log = (route.params && route.params.log) || ({} as Log);
 

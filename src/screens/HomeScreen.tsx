@@ -216,7 +216,10 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
             <ListItem
               item={item}
               onPress={() => {
-                navigation.push('ViewLog', { log: item });
+                navigation.push('ViewLog', {
+                  log: item,
+                  initialRatingsType: isMedicalField(sortType) ? 'medical' : undefined
+                });
               }}
               onPressDelete={async () => {
                 const { error } = await supabase
