@@ -91,7 +91,12 @@ const sortLogs = (logs: Log[], type: SortType): Log[] => {
     // "Mood: Happy" implies "logs rated for happiness," not "every log."
     return logs
       .filter(log => log[type] > 0)
-      .sort((a, b) => b[type] - a[type] || (b.finalRating || 0) - (a.finalRating || 0));
+      .sort(
+        (a, b) =>
+          b[type] - a[type] ||
+          (b.finalRating || 0) - (a.finalRating || 0) ||
+          new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+      );
   }
   return logs;
 };
