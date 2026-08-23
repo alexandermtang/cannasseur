@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // react-navigation 2's header had no padding, so every screen nudged its icon
@@ -13,22 +13,33 @@ const ICON_SIZE = 32;
 const BUTTON_SIZE = 36;
 
 interface HeaderButtonProps {
-  name: React.ComponentProps<typeof Ionicons>['name'];
+  // Either an icon name, or a text label (e.g. a selected year) in its
+  // place — never both. The label case grows past BUTTON_SIZE as needed
+  // rather than clipping.
+  name?: React.ComponentProps<typeof Ionicons>['name'];
+  label?: string;
+  size?: number;
   onPress: () => void;
 }
 
-const HeaderButton = ({ name, onPress }: HeaderButtonProps) => (
+const HeaderButton = ({ name, label, size = ICON_SIZE, onPress }: HeaderButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     hitSlop={12}
     style={{
-      width: BUTTON_SIZE,
+      width: label ? undefined : BUTTON_SIZE,
+      minWidth: BUTTON_SIZE,
       height: BUTTON_SIZE,
+      paddingHorizontal: label ? 4 : 0,
       alignItems: 'center',
       justifyContent: 'center'
     }}
   >
-    <Ionicons name={name} size={ICON_SIZE} />
+    {label ? (
+      <Text style={{ fontSize: 16, fontFamily: 'WorkSans', fontWeight: '600' }}>{label}</Text>
+    ) : (
+      name && <Ionicons name={name} size={size} />
+    )}
   </TouchableOpacity>
 );
 

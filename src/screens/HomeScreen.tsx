@@ -231,18 +231,14 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // unstable_headerLeftItems (iOS-only, and an unstable API per React
-      // Navigation's own docs — it may change in a future version) is what
-      // exposes hidesSharedBackground: without it, iOS 26 forces the
-      // "Liquid Glass" pill background onto any custom headerLeft view with
-      // no way to opt out.
-      unstable_headerLeftItems: () => [
-        {
-          type: 'custom',
-          element: <YearHeaderButton year={selectedYear} onPress={() => showYearFilterModal()} />,
-          hidesSharedBackground: true
-        }
-      ]
+      headerLeft: () => (
+        <HeaderButton
+          name={selectedYear === null ? 'calendar-clear' : undefined}
+          label={selectedYear === null ? undefined : String(selectedYear)}
+          size={24}
+          onPress={() => showYearFilterModal()}
+        />
+      )
     });
   }, [navigation, selectedYear]);
 
@@ -406,19 +402,6 @@ const FilterButton = ({ onPress, text }: { onPress: () => void; text: string }) 
     onPress={() => onPress()}
   >
     <Text style={{ fontSize: 16, fontFamily: 'WorkSans', lineHeight: 56 }}>{text}</Text>
-  </TouchableOpacity>
-);
-
-// No fixed box/background here on purpose — a centered box padded it out
-// from the search icon below, which is what read as a circle around it and
-// threw off the left alignment. hitSlop covers the tap-target instead.
-const YearHeaderButton = ({ year, onPress }: { year: number | null; onPress: () => void }) => (
-  <TouchableOpacity onPress={onPress} hitSlop={12}>
-    {year === null ? (
-      <Ionicons name={'calendar-clear'} size={24} />
-    ) : (
-      <Text style={{ fontSize: 16, fontFamily: 'WorkSans', fontWeight: '600' }}>{year}</Text>
-    )}
   </TouchableOpacity>
 );
 
