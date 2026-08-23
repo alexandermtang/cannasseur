@@ -231,8 +231,14 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const selectYear = (year: number | null) => {
     setSelectedYear(year);
-    setHomeFilters({ selectedYear: year });
-    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, year), searchText), sortType));
+    // Changing the year always resets sort back to Most Recent — the
+    // search term is unaffected.
+    setSortType('mostRecent');
+    setFilterText(filterTextFor('mostRecent'));
+    setHomeFilters({ selectedYear: year, sortType: 'mostRecent' });
+    setFilteredLogs(
+      sortLogs(searchLogs(filterByYear(allLogs, year), searchText), 'mostRecent')
+    );
     animateYearSheet(-600, () => {
       setShowYearModal(false);
     });
