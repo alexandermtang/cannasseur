@@ -294,9 +294,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     setRefreshing(false);
   };
 
+  const yearLogs = filterByYear(allLogs, selectedYear);
   const strainsSet = new Set<string>();
-  filterByYear(allLogs, selectedYear).forEach(log => strainsSet.add(log.strain));
+  yearLogs.forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
+  const numSessions = yearLogs.length;
 
   // ALL TIME row + one row per year + the modal's own header row, capped at
   // the same max height Filter Options uses (60% of the screen) — shorter
@@ -373,13 +375,19 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           onPress={() => navigation.navigate('LogNewSession')}
           text={'LOG NEW SESSION'}
         />
-        <View style={styles.strainsContainer}>
-          <Text style={styles.numStrains}>{numStrains}</Text>
-          <Text style={styles.strainsRecorded}>
-            STRAIN
-            {numStrains === 1 ? '' : 'S'} RECORDED
-            {selectedYear === null ? '' : ` IN ${selectedYear}`}
-          </Text>
+        <View style={styles.statsRow}>
+          <View style={styles.sessionsContainer}>
+            <Text style={styles.numStrains}>{numSessions}</Text>
+            <Text style={styles.strainsRecorded}>SESSION{numSessions === 1 ? '' : 'S'}</Text>
+          </View>
+          <View style={styles.strainsContainer}>
+            <Text style={styles.numStrains}>{numStrains}</Text>
+            <Text style={styles.strainsRecorded}>
+              STRAIN
+              {numStrains === 1 ? '' : 'S'} RECORDED
+              {selectedYear === null ? '' : ` IN ${selectedYear}`}
+            </Text>
+          </View>
         </View>
       </View>
       {showModal && (
@@ -508,6 +516,14 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingRight: 32,
     paddingLeft: 32
+  },
+  statsRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  sessionsContainer: {
+    alignItems: 'flex-start'
   },
   strainsContainer: {
     alignItems: 'flex-end'
