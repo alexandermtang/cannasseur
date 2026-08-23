@@ -280,6 +280,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   }, [navigation, selectedYear]);
 
   useEffect(() => {
+    // Gated on !isLoading — allLogs (and so availableYears) starts empty on
+    // every fresh mount until getLogs() resolves, which made this fire
+    // spuriously on mount and immediately clear a just-restored year filter
+    // before the real data even loaded.
+    //
     // The log book can collapse to a single year after this filter was
     // already applied (e.g. deleting every other year's logs while
     // filtered) — the icon that would let the user clear it just
@@ -287,12 +292,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     // Deliberately not selectYear(null): this is an automatic cleanup
     // reacting to deleted logs, not a real year change, so it shouldn't
     // also reset an unrelated sort filter the user never touched.
-    if (availableYears.length <= 1 && selectedYear !== null) {
+    if (!isLoading && availableYears.length <= 1 && selectedYear !== null) {
       setSelectedYear(null);
       setHomeFilters({ selectedYear: null });
       setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, null), searchText), sortType));
     }
-  }, [availableYears.length, selectedYear]);
+  }, [isLoading, availableYears.length, selectedYear]);
 
   const onRefresh = async () => {
     await getLogs();
