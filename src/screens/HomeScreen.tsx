@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import {
   Animated,
   ActivityIndicator,
@@ -110,6 +110,12 @@ const searchLogs = (logs: Log[], searchText: string): Log[] => {
   );
 };
 
+// null means ALL TIME — no filtering.
+const filterByYear = (logs: Log[], year: number | null): Log[] => {
+  if (year === null) return logs;
+  return logs.filter(log => log.date && new Date(log.date).getFullYear() === year);
+};
+
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
@@ -118,8 +124,11 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const [sortType, setSortType] = useState<SortType>('mostRecent');
   const [filterText, setFilterText] = useState('MOST RECENT');
   const [searchText, setSearchText] = useState('');
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [showYearModal, setShowYearModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
+  const yearBottomAnim = useRef(new Animated.Value(-600)).current;
 
   const getLogs = useCallback(async () => {
     const userId = await currentUserId();
@@ -141,12 +150,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    // Re-apply whatever search/sort was active — otherwise a refetch (e.g. on
-    // focus, after coming back from ViewLog) silently drops them back to
-    // unfiltered DB order.
-    setFilteredLogs(sortLogs(searchLogs(logs, searchText), sortType));
+    // Re-apply whatever search/sort/year was active — otherwise a refetch
+    // (e.g. on focus, after coming back from ViewLog) silently drops them
+    // back to unfiltered DB order.
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(logs, selectedYear), searchText), sortType));
     setIsLoading(false);
-  }, [sortType, searchText]);
+  }, [sortType, searchText, selectedYear]);
 
   useEffect(() => {
     getLogs();
@@ -159,7 +168,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const search = (text: string) => {
     setSearchText(text);
-    setFilteredLogs(sortLogs(searchLogs(allLogs, text), sortType));
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), text), sortType));
   };
 
   // `bottom` is a layout property, so this cannot run on the native driver.
@@ -188,11 +197,49 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     // deferring this let sortType (and the empty-state label it drives)
     // update a beat before filteredLogs did, flashing the new filter's empty
     // state over the old filter's stale results.
-    setFilteredLogs(sortLogs(searchLogs(allLogs, searchText), type));
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), searchText), type));
     animateSheet(-600, () => {
       setShowModal(false);
     });
   };
+
+  // `bottom` is a layout property, so this cannot run on the native driver.
+  const animateYearSheet = (toValue: number, onComplete?: () => void) => {
+    Animated.timing(yearBottomAnim, {
+      toValue,
+      duration: 250,
+      useNativeDriver: false
+    }).start(onComplete);
+  };
+
+  const showYearFilterModal = () => {
+    animateYearSheet(0);
+    setShowYearModal(true);
+  };
+
+  const hideYearModal = () => {
+    animateYearSheet(-600, () => setShowYearModal(false));
+  };
+
+  const selectYear = (year: number | null) => {
+    setSelectedYear(year);
+    setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, year), searchText), sortType));
+    animateYearSheet(-600, () => {
+      setShowYearModal(false);
+    });
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <HeaderButton
+          name={selectedYear === null ? 'calendar-clear' : undefined}
+          label={selectedYear === null ? undefined : String(selectedYear)}
+          onPress={() => showYearFilterModal()}
+        />
+      )
+    });
+  }, [navigation, selectedYear]);
 
   const onRefresh = async () => {
     await getLogs();
@@ -202,6 +249,14 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const strainsSet = new Set<string>();
   allLogs.forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
+
+  const availableYears = Array.from(
+    new Set(
+      allLogs
+        .map(log => (log.date ? new Date(log.date).getFullYear() : null))
+        .filter((year): year is number => year !== null)
+    )
+  ).sort((a, b) => b - a);
 
   return (
     <View style={styles.container}>
@@ -308,6 +363,30 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
               <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
               <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
               <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
+            </ScrollView>
+          </Animated.View>
+        </View>
+      )}
+      {showYearModal && (
+        <View style={styles.modal}>
+          <TouchableHighlight style={styles.top} onPress={() => hideYearModal()}>
+            <View />
+          </TouchableHighlight>
+          <Animated.View style={[styles.bottom, { bottom: yearBottomAnim }]}>
+            <View style={styles.modalHeaderContainer}>
+              <Ionicons
+                style={styles.closeIcon}
+                name={'close'}
+                size={32}
+                onPress={() => hideYearModal()}
+              />
+              <Text style={styles.filterOptionsHeaderText}>Select Year</Text>
+            </View>
+            <ScrollView style={{ paddingBottom: 56 }}>
+              <FilterButton onPress={() => selectYear(null)} text={'ALL TIME'} />
+              {availableYears.map(year => (
+                <FilterButton key={year} onPress={() => selectYear(year)} text={String(year)} />
+              ))}
             </ScrollView>
           </Animated.View>
         </View>
