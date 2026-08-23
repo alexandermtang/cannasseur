@@ -232,12 +232,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
-        <HeaderButton
-          name={selectedYear === null ? 'calendar-clear' : undefined}
-          label={selectedYear === null ? undefined : String(selectedYear)}
-          size={28}
-          onPress={() => showYearFilterModal()}
-        />
+        <YearHeaderButton year={selectedYear} onPress={() => showYearFilterModal()} />
       )
     });
   }, [navigation, selectedYear]);
@@ -402,6 +397,26 @@ const FilterButton = ({ onPress, text }: { onPress: () => void; text: string }) 
     onPress={() => onPress()}
   >
     <Text style={{ fontSize: 16, fontFamily: 'WorkSans', lineHeight: 56 }}>{text}</Text>
+  </TouchableOpacity>
+);
+
+const YearHeaderButton = ({ year, onPress }: { year: number | null; onPress: () => void }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    hitSlop={12}
+    style={{
+      minWidth: 36,
+      height: 36,
+      paddingHorizontal: year === null ? 0 : 4,
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
+  >
+    {year === null ? (
+      <Ionicons name={'calendar-clear'} size={28} />
+    ) : (
+      <Text style={{ fontSize: 16, fontFamily: 'WorkSans', fontWeight: '600' }}>{year}</Text>
+    )}
   </TouchableOpacity>
 );
 
