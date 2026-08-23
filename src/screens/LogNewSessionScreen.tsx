@@ -44,12 +44,24 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
   const [insomnia, setInsomnia] = useState(log ? log.insomnia : 0);
 
   const [tags, setTags] = useState<string[]>(log ? log.tags : []);
-  const [tagOptions, setTagOptions] = useState<string[]>([]);
+  // The user's real, persisted tag palette — the only thing ever written
+  // back to profiles.tags.
+  const [paletteTags, setPaletteTags] = useState<string[]>([]);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [hasErrors, setHasErrors] = useState(false);
 
   const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>('mood');
+
+  // This log's own tags even if they've since been deleted from the user's
+  // palette — editing an old log should still show (and let you keep) a tag
+  // that no longer exists for new sessions. Stateful (not derived from `log`
+  // directly) so long-pressing one of these removes it from view too, not
+  // just a no-op because it's already gone from the palette.
+  const [historicalTags, setHistoricalTags] = useState<string[]>(log ? log.tags || [] : []);
+
+  // Entered tags first, then the rest of the palette, deduped.
+  const displayTags = [...historicalTags, ...paletteTags.filter(t => !historicalTags.includes(t))];
 
   useEffect(() => {
     (async () => {
@@ -69,9 +81,9 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
       }
 
       // A profile with no tags yet gets the original starter set.
-      const nextTagOptions: string[] =
+      const nextPaletteTags: string[] =
         data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
-      setTagOptions(nextTagOptions);
+      setPaletteTags(nextPaletteTags);
     })();
   }, []);
 
@@ -84,7 +96,7 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
 
   // Takes the tags explicitly: callers used to fire this straight after
   // setState and read back this.state, which races with React's batching.
-  const updateTags = async (tagOptions: string[]) => {
+  const updateTags = async (paletteTags: string[]) => {
     const userId = await currentUserId();
     if (!userId) {
       return;
@@ -92,7 +104,7 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
 
     const { error } = await supabase
       .from('profiles')
-      .update({ tags: tagOptions })
+      .update({ tags: paletteTags })
       .eq('id', userId);
 
     if (error) {
@@ -188,7 +200,7 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
       )}
       <Text style={styles.label}>TAGS</Text>
       <View style={styles.tagsContainer}>
-        {tagOptions.map((tag, i) => {
+        {displayTags.map((tag, i) => {
           return (
             <TouchableOpacity
               key={i}
@@ -198,9 +210,15 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
               ]}
               onPress={() => toggleTag(tag)}
               onLongPress={() => {
-                const nextTagOptions = tagOptions.filter(t => t !== tag);
-                setTagOptions(nextTagOptions);
-                updateTags(nextTagOptions);
+                // Delete means gone — from the palette (persisted), from
+                // this log's own history if it's showing because of that,
+                // and deselected if it was applied to this log.
+                const nextPaletteTags = paletteTags.filter(t => t !== tag);
+                setPaletteTags(nextPaletteTags);
+                updateTags(nextPaletteTags);
+
+                setHistoricalTags(current => current.filter(t => t !== tag));
+                setTags(current => current.filter(t => t !== tag));
               }}
             >
               <Text
@@ -258,12 +276,13 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
         <Dialog.Button
           label="OK"
           onPress={() => {
-            const nextTags = newTag && !tagOptions.includes(newTag) ? [...tagOptions, newTag] : tagOptions;
+            const nextPaletteTags =
+              newTag && !paletteTags.includes(newTag) ? [...paletteTags, newTag] : paletteTags;
 
-            setTagOptions(nextTags);
+            setPaletteTags(nextPaletteTags);
             setNewTag('');
             setDialogVisible(false);
-            updateTags(nextTags);
+            updateTags(nextPaletteTags);
           }}
         />
       </Dialog.Container>
