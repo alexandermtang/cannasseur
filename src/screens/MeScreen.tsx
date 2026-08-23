@@ -58,7 +58,7 @@ const MeScreen = () => {
       <Text style={styles.text}>{name}</Text>
       <Text style={styles.text}>{email}</Text>
       <Text style={[styles.text, { marginBottom: 64 }]}>
-        {sessionCount} session{sessionCount === 1 ? '' : 's'} logged
+        {sessionCount} session {sessionCount === 1 ? 'entry' : 'entries'}
       </Text>
       <BlackButton onPress={() => logout()} text={'LOG OUT'} />
     </View>
