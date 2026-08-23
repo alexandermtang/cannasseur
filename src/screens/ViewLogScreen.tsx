@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     width: '80%',
     marginTop: 16,
     paddingBottom: 32,
-    color: '#9B9B9B'
+    color: '#000'
   },
   editButton: {
     left: '10%',
