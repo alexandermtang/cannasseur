@@ -400,18 +400,11 @@ const FilterButton = ({ onPress, text }: { onPress: () => void; text: string }) 
   </TouchableOpacity>
 );
 
+// No fixed box/background here on purpose — a centered box padded it out
+// from the search icon below, which is what read as a circle around it and
+// threw off the left alignment. hitSlop covers the tap-target instead.
 const YearHeaderButton = ({ year, onPress }: { year: number | null; onPress: () => void }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    hitSlop={12}
-    style={{
-      minWidth: 36,
-      height: 36,
-      paddingHorizontal: year === null ? 0 : 4,
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}
-  >
+  <TouchableOpacity onPress={onPress} hitSlop={12}>
     {year === null ? (
       <Ionicons name={'calendar-clear'} size={28} />
     ) : (
