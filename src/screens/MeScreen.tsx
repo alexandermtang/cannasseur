@@ -5,7 +5,6 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
-import { resetHomeFilters } from '../lib/homeFilters';
 import type { AppScreenProps } from '../types/navigation';
 
 export const meScreenOptions = ({
@@ -44,10 +43,8 @@ const MeScreen = () => {
   }, []);
 
   const logout = async () => {
-    // Otherwise the next account to log in on this device would land on
-    // Home with this account's leftover year/sort/search filter applied.
-    resetHomeFilters();
-    // onAuthStateChange in App.js swaps back to the auth stack.
+    // onAuthStateChange in App.js swaps back to the auth stack (and resets
+    // Home's filters, so the next account doesn't inherit this one's).
     await supabase.auth.signOut();
   };
 
