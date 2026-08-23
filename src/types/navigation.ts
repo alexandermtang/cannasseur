@@ -14,7 +14,7 @@ export type AppStackParamList = {
   Me: undefined;
   LogNewSession: { log?: Log } | undefined;
   SubmitLog: { log?: Log } | undefined;
-  ViewLog: { log: Log };
+  ViewLog: { log: Log; initialRatingsType?: 'mood' | 'medical' };
 };
 
 export type AuthScreenProps<RouteName extends keyof AuthStackParamList> = NativeStackScreenProps<
