@@ -231,9 +231,18 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <YearHeaderButton year={selectedYear} onPress={() => showYearFilterModal()} />
-      )
+      // unstable_headerLeftItems (iOS-only, and an unstable API per React
+      // Navigation's own docs — it may change in a future version) is what
+      // exposes hidesSharedBackground: without it, iOS 26 forces the
+      // "Liquid Glass" pill background onto any custom headerLeft view with
+      // no way to opt out.
+      unstable_headerLeftItems: () => [
+        {
+          type: 'custom',
+          element: <YearHeaderButton year={selectedYear} onPress={() => showYearFilterModal()} />,
+          hidesSharedBackground: true
+        }
+      ]
     });
   }, [navigation, selectedYear]);
 
@@ -406,7 +415,7 @@ const FilterButton = ({ onPress, text }: { onPress: () => void; text: string }) 
 const YearHeaderButton = ({ year, onPress }: { year: number | null; onPress: () => void }) => (
   <TouchableOpacity onPress={onPress} hitSlop={12}>
     {year === null ? (
-      <Ionicons name={'calendar-clear'} size={28} />
+      <Ionicons name={'calendar-clear'} size={24} />
     ) : (
       <Text style={{ fontSize: 16, fontFamily: 'WorkSans', fontWeight: '600' }}>{year}</Text>
     )}
