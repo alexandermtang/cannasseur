@@ -402,56 +402,50 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         </TouchableHighlight>
       )}
       {showModal && (
-        <View style={styles.modal}>
-          <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
-            <View style={styles.modalHeaderContainer}>
-              <Ionicons
-                style={styles.closeIcon}
-                name={'close'}
-                size={32}
-                onPress={() => hideModal()}
-              />
-              <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
-            </View>
-            <ScrollView style={{ paddingBottom: 56 }}>
-              <FilterButton onPress={() => sortBy('mostRecent')} text={'MOST RECENT'} />
-              <FilterButton onPress={() => sortBy('topRated')} text={'TOP RATED'} />
-              <FilterButton onPress={() => sortBy('happy')} text={'MOOD: HAPPY'} />
-              <FilterButton onPress={() => sortBy('creative')} text={'MOOD: CREATIVE'} />
-              <FilterButton onPress={() => sortBy('active')} text={'MOOD: ACTIVE'} />
-              <FilterButton onPress={() => sortBy('relaxed')} text={'MOOD: RELAXED'} />
-              <FilterButton onPress={() => sortBy('sleepy')} text={'MOOD: SLEEPY'} />
-              <FilterButton onPress={() => sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
-              <FilterButton onPress={() => sortBy('migraines')} text={'MEDICAL: MIGRAINES'} />
-              <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
-              <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
-              <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
-            </ScrollView>
-          </Animated.View>
-        </View>
+        <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
+          <View style={styles.modalHeaderContainer}>
+            <Ionicons
+              style={styles.closeIcon}
+              name={'close'}
+              size={32}
+              onPress={() => hideModal()}
+            />
+            <Text style={styles.filterOptionsHeaderText}>Filter Options</Text>
+          </View>
+          <ScrollView style={{ paddingBottom: 56 }}>
+            <FilterButton onPress={() => sortBy('mostRecent')} text={'MOST RECENT'} />
+            <FilterButton onPress={() => sortBy('topRated')} text={'TOP RATED'} />
+            <FilterButton onPress={() => sortBy('happy')} text={'MOOD: HAPPY'} />
+            <FilterButton onPress={() => sortBy('creative')} text={'MOOD: CREATIVE'} />
+            <FilterButton onPress={() => sortBy('active')} text={'MOOD: ACTIVE'} />
+            <FilterButton onPress={() => sortBy('relaxed')} text={'MOOD: RELAXED'} />
+            <FilterButton onPress={() => sortBy('sleepy')} text={'MOOD: SLEEPY'} />
+            <FilterButton onPress={() => sortBy('anxiety')} text={'MEDICAL: ANXIETY'} />
+            <FilterButton onPress={() => sortBy('migraines')} text={'MEDICAL: MIGRAINES'} />
+            <FilterButton onPress={() => sortBy('depression')} text={'MEDICAL: DEPRESSION'} />
+            <FilterButton onPress={() => sortBy('pain')} text={'MEDICAL: PAIN'} />
+            <FilterButton onPress={() => sortBy('insomnia')} text={'MEDICAL: INSOMNIA'} />
+          </ScrollView>
+        </Animated.View>
       )}
       {showYearModal && (
-        <View style={styles.modal}>
-          <Animated.View
-            style={[styles.bottom, { bottom: yearBottomAnim, height: yearModalHeight }]}
-          >
-            <View style={styles.modalHeaderContainer}>
-              <Ionicons
-                style={styles.closeIcon}
-                name={'close'}
-                size={32}
-                onPress={() => hideYearModal()}
-              />
-              <Text style={styles.filterOptionsHeaderText}>Select Year</Text>
-            </View>
-            <ScrollView style={{ paddingBottom: 56 }}>
-              <FilterButton onPress={() => selectYear(null)} text={'ALL TIME'} />
-              {availableYears.map(year => (
-                <FilterButton key={year} onPress={() => selectYear(year)} text={String(year)} />
-              ))}
-            </ScrollView>
-          </Animated.View>
-        </View>
+        <Animated.View style={[styles.bottom, { bottom: yearBottomAnim, height: yearModalHeight }]}>
+          <View style={styles.modalHeaderContainer}>
+            <Ionicons
+              style={styles.closeIcon}
+              name={'close'}
+              size={32}
+              onPress={() => hideYearModal()}
+            />
+            <Text style={styles.filterOptionsHeaderText}>Select Year</Text>
+          </View>
+          <ScrollView style={{ paddingBottom: 56 }}>
+            <FilterButton onPress={() => selectYear(null)} text={'ALL TIME'} />
+            {availableYears.map(year => (
+              <FilterButton key={year} onPress={() => selectYear(year)} text={String(year)} />
+            ))}
+          </ScrollView>
+        </Animated.View>
       )}
     </View>
   );
@@ -534,13 +528,6 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 
-  modal: {
-    height: '100%',
-    width: '100%',
-    position: 'absolute',
-    zIndex: 500
-    // bottom: 90
-  },
   top: {
     height: '100%',
     width: '100%',
