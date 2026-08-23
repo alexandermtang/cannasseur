@@ -65,6 +65,15 @@ const filterTextFor = (type: SortType): string => {
   return '';
 };
 
+// Phrasing for the empty state reads differently from the filter button's
+// own label — "ACTIVE MOOD" for a mood field, but just "INSOMNIA" (no
+// "MEDICAL" prefix) for a medical one.
+const emptyStateLabelFor = (type: SortType): string => {
+  if (isMoodField(type)) return `${type.toUpperCase()} MOOD`;
+  if (isMedicalField(type)) return type.toUpperCase();
+  return '';
+};
+
 const sortLogs = (logs: Log[], type: SortType): Log[] => {
   if (type === 'mostRecent') {
     const sorted = [...logs];
@@ -208,7 +217,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: 'WorkSans', fontSize: 16 }}>
             {isMoodField(sortType) || isMedicalField(sortType)
-              ? `NO LOGS FOR ${filterText}`
+              ? `NO LOGS FOR ${emptyStateLabelFor(sortType)}`
               : 'NO LOGS'}
           </Text>
         </View>
