@@ -66,15 +66,25 @@ const filterTextFor = (type: SortType): string => {
 };
 
 const sortLogs = (logs: Log[], type: SortType): Log[] => {
-  const sorted = [...logs];
   if (type === 'mostRecent') {
+    const sorted = [...logs];
     sorted.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-  } else if (type === 'topRated') {
-    sorted.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
-  } else if (isMoodField(type) || isMedicalField(type)) {
-    sorted.sort((a, b) => b[type] - a[type]);
+    return sorted;
   }
-  return sorted;
+  if (type === 'topRated') {
+    const sorted = [...logs];
+    sorted.sort((a, b) => (b.finalRating || 0) - (a.finalRating || 0));
+    return sorted;
+  }
+  if (isMoodField(type) || isMedicalField(type)) {
+    // A 0 means that mood/medical effect wasn't rated at all for that log —
+    // filtering it out rather than just sorting it to the bottom, since
+    // "Mood: Happy" implies "logs rated for happiness," not "every log."
+    return logs
+      .filter(log => log[type] > 0)
+      .sort((a, b) => b[type] - a[type]);
+  }
+  return logs;
 };
 
 const searchLogs = (logs: Log[], searchText: string): Log[] => {
