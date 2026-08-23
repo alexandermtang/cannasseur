@@ -10,7 +10,8 @@ import {
   TouchableHighlight,
   FlatList,
   ScrollView,
-  RefreshControl
+  RefreshControl,
+  useWindowDimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -121,7 +122,10 @@ const filterByYear = (logs: Log[], year: number | null): Log[] => {
   return logs.filter(log => log.date && new Date(log.date).getFullYear() === year);
 };
 
+const MODAL_ROW_HEIGHT = 56; // matches FilterButton and modalHeaderContainer
+
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
+  const { height: windowHeight } = useWindowDimensions();
   const [allLogs, setAllLogs] = useState<Log[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -267,6 +271,14 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     )
   ).sort((a, b) => b - a);
 
+  // ALL TIME row + one row per year + the modal's own header row, capped at
+  // the same max height Filter Options uses (60% of the screen) — shorter
+  // when there aren't enough years to need it.
+  const yearModalHeight = Math.min(
+    MODAL_ROW_HEIGHT * (availableYears.length + 2),
+    windowHeight * 0.6
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -380,7 +392,9 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           <TouchableHighlight style={styles.top} onPress={() => hideYearModal()}>
             <View />
           </TouchableHighlight>
-          <Animated.View style={[styles.bottom, { bottom: yearBottomAnim }]}>
+          <Animated.View
+            style={[styles.bottom, { bottom: yearBottomAnim, height: yearModalHeight }]}
+          >
             <View style={styles.modalHeaderContainer}>
               <Ionicons
                 style={styles.closeIcon}
