@@ -55,11 +55,13 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
 
   // This log's own tags even if they've since been deleted from the user's
   // palette — editing an old log should still show (and let you keep) a tag
-  // that no longer exists for new sessions.
-  const logTags = log ? log.tags || [] : [];
+  // that no longer exists for new sessions. Stateful (not derived from `log`
+  // directly) so long-pressing one of these removes it from view too, not
+  // just a no-op because it's already gone from the palette.
+  const [historicalTags, setHistoricalTags] = useState<string[]>(log ? log.tags || [] : []);
 
   // Entered tags first, then the rest of the palette, deduped.
-  const displayTags = [...logTags, ...paletteTags.filter(t => !logTags.includes(t))];
+  const displayTags = [...historicalTags, ...paletteTags.filter(t => !historicalTags.includes(t))];
 
   useEffect(() => {
     (async () => {
@@ -208,11 +210,15 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
               ]}
               onPress={() => toggleTag(tag)}
               onLongPress={() => {
-                // No-op for a tag that's only here because this log used it
-                // historically — it's already absent from the palette.
+                // Delete means gone — from the palette (persisted), from
+                // this log's own history if it's showing because of that,
+                // and deselected if it was applied to this log.
                 const nextPaletteTags = paletteTags.filter(t => t !== tag);
                 setPaletteTags(nextPaletteTags);
                 updateTags(nextPaletteTags);
+
+                setHistoricalTags(current => current.filter(t => t !== tag));
+                setTags(current => current.filter(t => t !== tag));
               }}
             >
               <Text
