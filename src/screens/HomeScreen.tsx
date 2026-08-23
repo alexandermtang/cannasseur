@@ -387,11 +387,22 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
           </Text>
         </View>
       </View>
+      {(showModal || showYearModal) && (
+        // Shared across both modals so it stays mounted continuously through
+        // a Filter Options <-> Select Year transition — two separate copies
+        // (one per modal) would briefly stack and read as doubly dark.
+        <TouchableHighlight
+          style={styles.top}
+          onPress={() => {
+            if (showModal) hideModal();
+            if (showYearModal) hideYearModal();
+          }}
+        >
+          <View />
+        </TouchableHighlight>
+      )}
       {showModal && (
         <View style={styles.modal}>
-          <TouchableHighlight style={styles.top} onPress={() => hideModal()}>
-            <View />
-          </TouchableHighlight>
           <Animated.View style={[styles.bottom, { bottom: bottomAnim }]}>
             <View style={styles.modalHeaderContainer}>
               <Ionicons
@@ -421,9 +432,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
       )}
       {showYearModal && (
         <View style={styles.modal}>
-          <TouchableHighlight style={styles.top} onPress={() => hideYearModal()}>
-            <View />
-          </TouchableHighlight>
           <Animated.View
             style={[styles.bottom, { bottom: yearBottomAnim, height: yearModalHeight }]}
           >
