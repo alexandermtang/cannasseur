@@ -9,7 +9,7 @@ import BlackButton from '../components/BlackButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import type { LogKind } from '../types/log';
-import type { AppScreenProps } from '../types/navigation';
+import type { AppScreenProps, RatingsType } from '../types/navigation';
 
 const DEFAULT_TAGS = ['Laughing', 'Socializing', 'Yoga', 'Munchies', 'Movies', 'Ideas'];
 
@@ -51,7 +51,9 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
   const [newTag, setNewTag] = useState('');
   const [hasErrors, setHasErrors] = useState(false);
 
-  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>('mood');
+  const [ratingsType, setRatingsType] = useState<RatingsType>(
+    route.params?.initialRatingsType || 'mood'
+  );
 
   // This log's own tags even if they've since been deleted from the user's
   // palette — editing an old log should still show (and let you keep) a tag

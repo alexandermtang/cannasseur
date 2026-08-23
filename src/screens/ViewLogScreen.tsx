@@ -7,7 +7,7 @@ import StarRating from '../components/StarRating';
 import CircleRating from '../components/CircleRating';
 import HeaderButton from '../components/HeaderButton';
 import type { Log } from '../types/log';
-import type { AppScreenProps } from '../types/navigation';
+import type { AppScreenProps, RatingsType } from '../types/navigation';
 
 export const viewLogScreenOptions = ({
   navigation,
@@ -20,7 +20,7 @@ export const viewLogScreenOptions = ({
 });
 
 const ViewLogScreen = ({ navigation, route }: AppScreenProps<'ViewLog'>) => {
-  const [ratingsType, setRatingsType] = useState<'mood' | 'medical'>(
+  const [ratingsType, setRatingsType] = useState<RatingsType>(
     route.params?.initialRatingsType || 'mood'
   );
 
@@ -120,7 +120,7 @@ const ViewLogScreen = ({ navigation, route }: AppScreenProps<'ViewLog'>) => {
       {log.notes && <Text style={styles.notes}>"{log.notes}"</Text>}
       <TouchableOpacity
         style={[styles.button, styles.editButton]}
-        onPress={() => navigation.push('LogNewSession', { log })}
+        onPress={() => navigation.push('LogNewSession', { log, initialRatingsType: ratingsType })}
       >
         <Text style={[styles.buttonText, { color: '#fff' }]}>EDIT</Text>
       </TouchableOpacity>

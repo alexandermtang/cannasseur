@@ -9,12 +9,14 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
+export type RatingsType = 'mood' | 'medical';
+
 export type AppStackParamList = {
   Home: undefined;
   Me: undefined;
-  LogNewSession: { log?: Log } | undefined;
+  LogNewSession: { log?: Log; initialRatingsType?: RatingsType } | undefined;
   SubmitLog: { log?: Log } | undefined;
-  ViewLog: { log: Log; initialRatingsType?: 'mood' | 'medical' };
+  ViewLog: { log: Log; initialRatingsType?: RatingsType };
 };
 
 export type AuthScreenProps<RouteName extends keyof AuthStackParamList> = NativeStackScreenProps<
