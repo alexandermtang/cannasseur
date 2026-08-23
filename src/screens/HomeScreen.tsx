@@ -284,8 +284,13 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     // already applied (e.g. deleting every other year's logs while
     // filtered) — the icon that would let the user clear it just
     // disappeared above, so clear it here instead of leaving them stuck.
+    // Deliberately not selectYear(null): this is an automatic cleanup
+    // reacting to deleted logs, not a real year change, so it shouldn't
+    // also reset an unrelated sort filter the user never touched.
     if (availableYears.length <= 1 && selectedYear !== null) {
-      selectYear(null);
+      setSelectedYear(null);
+      setHomeFilters({ selectedYear: null });
+      setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, null), searchText), sortType));
     }
   }, [availableYears.length, selectedYear]);
 
