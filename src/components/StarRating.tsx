@@ -50,7 +50,9 @@ const StarRating = ({
             key={position}
             disabled={disabled}
             hitSlop={4}
-            onPress={() => selectedStar && selectedStar(position)}
+            // Tapping the star that's already the current rating clears it
+            // back to 0, instead of just re-setting the same value.
+            onPress={() => selectedStar && selectedStar(position === rating ? 0 : position)}
           >
             <Ionicons
               name={isFilled ? fullStar : emptyStar}
