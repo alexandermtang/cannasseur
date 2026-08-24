@@ -12,7 +12,7 @@ export const meScreenOptions = ({
 }: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
   title: 'PROFILE',
   headerLeft: () => (
-    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+    <HeaderButton name={'chevron-back'} onPress={() => navigation.goBack()} />
   )
 });
 

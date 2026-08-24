@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 // 32 matches every other icon in the app (search, filter and modal-close in
 // HomeScreen). The fixed box gives the icon a predictable button to centre in
 // rather than letting it size itself to the text line height.
-const ICON_SIZE = 32;
+const ICON_SIZE = 24;
 const BUTTON_SIZE = 36;
 
 interface HeaderButtonProps {
