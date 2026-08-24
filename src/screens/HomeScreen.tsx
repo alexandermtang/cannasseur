@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 100,
     top: 12,
-    left: 16
+    left: 12
   },
   searchInput: {
     height: 56,
