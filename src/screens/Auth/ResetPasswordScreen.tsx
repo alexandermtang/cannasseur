@@ -3,67 +3,83 @@ import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'reac
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import { supabase } from '../../lib/supabase';
-import type { AuthScreenProps } from '../../types/navigation';
 
-const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>) => {
-  const [email, setEmail] = useState('');
+interface ResetPasswordScreenProps {
+  // Called once the password is updated. The recovery session Supabase
+  // already established is a real session, so from here App.tsx just falls
+  // through to the normal signed-in stack - no separate login step.
+  onComplete: () => void;
+}
+
+const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const onResetPassword = async () => {
-    if (email === '') {
-      setError('Missing email.');
+  const onSubmit = async () => {
+    if (password === '') {
+      setError('Missing password.');
       setIsLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'cannasseur://reset-password'
-    });
+    if (password !== confirmPassword) {
+      setError('Passwords must match.');
+      setIsLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      setError('Invalid email.');
+      setError(error.message);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(false);
-    setNotice('Please check your email.');
+    onComplete();
   };
 
   return (
     <View style={styles.container}>
       <Spinner
         visible={isLoading}
-        textContent={'Sending reset password email...'}
+        textContent={'Updating password...'}
         textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
       />
       <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
       <TextInput
         autoCapitalize={'none'}
-        placeholder={'email'}
-        onChangeText={email => {
-          setEmail(email);
+        placeholder={'new password'}
+        onChangeText={password => {
+          setPassword(password);
           setError('');
-          setNotice('');
         }}
         style={styles.input}
+        secureTextEntry
+      />
+      <TextInput
+        autoCapitalize={'none'}
+        placeholder={'confirm password'}
+        onChangeText={confirmPassword => {
+          setConfirmPassword(confirmPassword);
+          setError('');
+        }}
+        style={styles.input}
+        secureTextEntry
       />
       <Text style={styles.error}>{error}</Text>
-      {notice !== '' && <Text style={styles.notice}>{notice}</Text>}
       <TouchableOpacity
-        style={styles.resetPasswordButton}
+        style={styles.button}
         onPress={() => {
           setIsLoading(true);
-          onResetPassword();
+          onSubmit();
         }}
       >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>RESET PASSWORD</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
+        <Text style={[styles.buttonText, { color: '#fff' }]}>UPDATE PASSWORD</Text>
       </TouchableOpacity>
     </View>
   );
@@ -102,15 +118,7 @@ const styles = StyleSheet.create({
     color: '#f00',
     height: 24
   },
-  notice: {
-    fontSize: 16,
-    fontFamily: 'WorkSans',
-    color: '#000',
-    textAlign: 'center',
-    width: '80%',
-    marginBottom: 8
-  },
-  resetPasswordButton: {
+  button: {
     width: '80%',
     height: 48,
     display: 'flex',
@@ -120,18 +128,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     marginTop: 4
   },
-  backButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 136
-  },
   buttonText: {
     fontFamily: 'WorkSans',
     fontSize: 16
   }
 });
 
-export default ForgotPasswordScreen;
+export default ResetPasswordScreen;

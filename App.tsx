@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View, LogBox } from 'react-native';
+import { ActivityIndicator, View, LogBox, Linking } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import LoginScreen from './src/screens/Auth/LoginScreen';
 import SignUpScreen from './src/screens/Auth/SignUpScreen';
 import SignUpLoginScreen from './src/screens/Auth/SignUpLoginScreen';
 import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
+import ResetPasswordScreen from './src/screens/Auth/ResetPasswordScreen';
 
 import HomeScreen, { homeScreenOptions } from './src/screens/HomeScreen';
 import MeScreen, { meScreenOptions } from './src/screens/MeScreen';
@@ -33,17 +34,6 @@ SplashScreen.preventAutoHideAsync();
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
 const AppStackNavigator = createNativeStackNavigator<AppStackParamList>();
-
-// Lets `cannasseur://login` (e.g. the button on the email-confirmation page)
-// drop the user straight onto Login instead of just opening the app.
-const linking = {
-  prefixes: ['cannasseur://'],
-  config: {
-    screens: {
-      Login: 'login'
-    }
-  }
-};
 
 const appScreenOptions = {
   headerStyle: { backgroundColor: '#F4F3EF' },
@@ -96,6 +86,39 @@ const App = () => {
   // Replaces AuthLoadingScreen and the hand-rolled AsyncStorage 'userId' flag.
   const [session, setSession] = useState<Session | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+
+  useEffect(() => {
+    // supabase.ts sets detectSessionInUrl: false (there's no browser URL to
+    // detect on a native app), so a recovery deep link has to be parsed and
+    // turned into a session by hand - Supabase's automatic PASSWORD_RECOVERY
+    // event only fires from that URL-detection path, which is off here.
+    const handleUrl = (url: string) => {
+      if (!url.startsWith('cannasseur://reset-password')) {
+        return;
+      }
+
+      const fragment = url.split('#')[1] ?? '';
+      const params = new URLSearchParams(fragment);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (params.get('type') === 'recovery' && accessToken && refreshToken) {
+        setIsPasswordRecovery(true);
+        supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      }
+    };
+
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        handleUrl(url);
+      }
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => handleUrl(url));
+
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -136,9 +159,11 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer linking={linking}>
-          {session ? <AppStack /> : <AuthStack />}
-        </NavigationContainer>
+        {isPasswordRecovery ? (
+          <ResetPasswordScreen onComplete={() => setIsPasswordRecovery(false)} />
+        ) : (
+          <NavigationContainer>{session ? <AppStack /> : <AuthStack />}</NavigationContainer>
+        )}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
