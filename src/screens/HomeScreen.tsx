@@ -11,6 +11,7 @@ import {
   FlatList,
   ScrollView,
   RefreshControl,
+  Keyboard,
   useWindowDimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -138,6 +139,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const showFilterModal = () => {
+    Keyboard.dismiss();
     if (showYearModal) {
       animateYearSheet(-600, () => setShowYearModal(false));
     }
@@ -174,6 +176,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   };
 
   const showYearFilterModal = () => {
+    Keyboard.dismiss();
     if (showModal) {
       animateSheet(-600, () => setShowModal(false));
     }
