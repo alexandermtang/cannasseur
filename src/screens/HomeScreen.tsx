@@ -46,7 +46,7 @@ export const homeScreenOptions = ({
 });
 
 const MODAL_ROW_HEIGHT = 56; // matches FilterButton and modalHeaderContainer
-const SEARCH_DEBOUNCE_MS = 250;
+const SEARCH_DEBOUNCE_MS = 200;
 
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const { height: windowHeight } = useWindowDimensions();
