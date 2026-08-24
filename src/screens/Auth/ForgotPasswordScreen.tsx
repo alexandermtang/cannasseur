@@ -19,7 +19,7 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'cannasseur://reset-password'
+      redirectTo: 'https://www.cannasseur.app/reset-password'
     });
 
     if (error) {
@@ -51,8 +51,7 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
         }}
         style={styles.input}
       />
-      <Text style={styles.error}>{error}</Text>
-      {notice !== '' && <Text style={styles.notice}>{notice}</Text>}
+      <Text style={error ? styles.error : styles.notice}>{error || notice}</Text>
       <TouchableOpacity
         style={styles.resetPasswordButton}
         onPress={() => {
@@ -106,9 +105,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'WorkSans',
     color: '#000',
-    textAlign: 'center',
-    width: '80%',
-    marginBottom: 8
+    height: 24
   },
   resetPasswordButton: {
     width: '80%',

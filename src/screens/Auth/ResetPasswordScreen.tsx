@@ -46,34 +46,36 @@ const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
     <View style={styles.container}>
       <Spinner
         visible={isLoading}
-        textContent={'Updating password...'}
+        textContent={'Updating password and logging in...'}
         textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
       />
       <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
-      <TextInput
-        autoCapitalize={'none'}
-        placeholder={'new password'}
-        onChangeText={password => {
-          setPassword(password);
-          setError('');
-        }}
-        style={styles.input}
-        secureTextEntry
-      />
-      <TextInput
-        autoCapitalize={'none'}
-        placeholder={'confirm password'}
-        onChangeText={confirmPassword => {
-          setConfirmPassword(confirmPassword);
-          setError('');
-        }}
-        style={styles.input}
-        secureTextEntry
-      />
+      <View style={styles.inputs}>
+        <TextInput
+          autoCapitalize={'none'}
+          placeholder={'new password'}
+          onChangeText={password => {
+            setPassword(password);
+            setError('');
+          }}
+          style={styles.input}
+          secureTextEntry
+        />
+        <TextInput
+          autoCapitalize={'none'}
+          placeholder={'confirm password'}
+          onChangeText={confirmPassword => {
+            setConfirmPassword(confirmPassword);
+            setError('');
+          }}
+          style={styles.input}
+          secureTextEntry
+        />
+      </View>
       <Text style={styles.error}>{error}</Text>
       <TouchableOpacity
-        style={styles.button}
+        style={styles.submitButton}
         onPress={() => {
           setIsLoading(true);
           onSubmit();
@@ -81,6 +83,10 @@ const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
       >
         <Text style={[styles.buttonText, { color: '#fff' }]}>UPDATE PASSWORD</Text>
       </TouchableOpacity>
+      {/* Matches the box LoginScreen's GO BACK button would occupy below LOG
+          IN - without it, this screen's shorter content re-centers and
+          UPDATE PASSWORD sits lower than LOG IN does. */}
+      <View style={styles.backButtonSpacer} />
     </View>
   );
 };
@@ -103,14 +109,16 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontFamily: 'PlayfairDisplay-Italic'
   },
+  inputs: {
+    width: '80%'
+  },
   input: {
     fontFamily: 'PlayfairDisplay-Regular',
     marginBottom: 8,
     fontSize: 20,
     borderColor: '#000',
     borderBottomWidth: 1,
-    padding: 8,
-    width: '80%'
+    padding: 8
   },
   error: {
     fontSize: 16,
@@ -118,19 +126,23 @@ const styles = StyleSheet.create({
     color: '#f00',
     height: 24
   },
-  button: {
+  submitButton: {
     width: '80%',
     height: 48,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: '#000',
-    marginTop: 4
+    backgroundColor: '#000'
   },
   buttonText: {
     fontFamily: 'WorkSans',
     fontSize: 16
+  },
+  backButtonSpacer: {
+    width: '80%',
+    height: 48,
+    marginTop: 96
   }
 });
 
