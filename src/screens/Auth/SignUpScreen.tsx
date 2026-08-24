@@ -11,10 +11,9 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isOver18, setIsOver18] = useState(false);
+  const [isOver21, setIsOver21] = useState(false);
 
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const onSignUp = async () => {
@@ -36,7 +35,7 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
       return;
     }
 
-    if (!isOver18) {
+    if (!isOver21) {
       setError('Please verify your age.');
       setIsLoading(false);
       return;
@@ -44,7 +43,9 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
 
     // The `name` lands in raw_user_meta_data; the on_auth_user_created trigger
     // copies it into the profiles row, so there is no manual profile write here.
-    const { data, error } = await supabase.auth.signUp({
+    // Email confirmation is off for this project, so signUp returns a session
+    // immediately - onAuthStateChange in App.tsx swaps the stack from there.
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } }
@@ -56,15 +57,6 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
       return;
     }
 
-    if (!data.session) {
-      // Email confirmation is on for this project, so no session exists yet.
-      // Without this the screen would silently do nothing.
-      setNotice('Check your email to confirm your account, then log in.');
-      setIsLoading(false);
-      return;
-    }
-
-    // Session exists: onAuthStateChange in App.js swaps the stack.
     setIsLoading(false);
   };
 
@@ -111,19 +103,19 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
         }}
         secureTextEntry
       />
-      <View style={styles.isOver18Container}>
+      <View style={styles.isOver21Container}>
         <Checkbox
-          value={isOver18}
+          value={isOver21}
           onValueChange={() => {
-            setIsOver18(!isOver18);
+            setIsOver21(!isOver21);
             setError('');
           }}
-          color={isOver18 ? '#000' : undefined}
+          color={isOver21 ? '#000' : undefined}
           style={{ marginRight: 16, width: 28, height: 28 }}
         />
         <TouchableOpacity
           onPress={() => {
-            setIsOver18(!isOver18);
+            setIsOver21(!isOver21);
             setError('');
           }}
         >
@@ -131,7 +123,6 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
         </TouchableOpacity>
       </View>
       <Text style={styles.error}>{error}</Text>
-      {notice !== '' && <Text style={styles.notice}>{notice}</Text>}
       <TouchableOpacity
         style={[styles.button, styles.signUpButton]}
         onPress={() => {
@@ -185,15 +176,7 @@ const styles = StyleSheet.create({
     height: 24,
     marginTop: 8
   },
-  notice: {
-    fontSize: 16,
-    fontFamily: 'WorkSans',
-    color: '#000',
-    textAlign: 'center',
-    width: '80%',
-    marginBottom: 8
-  },
-  isOver18Container: {
+  isOver21Container: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
