@@ -12,10 +12,7 @@
     "platforms": ["ios"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.alexandermtang.cannasseur",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.alexandermtang.cannasseur"
     },
     "plugins": [
       "expo-font",
@@ -27,12 +24,6 @@
           "backgroundColor": "#F4F3EF"
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "ed6e4c80-b550-11e8-821d-c1063d60da5b"
-      }
-    },
-    "owner": "alextang324"
+    ]
   }
 }
