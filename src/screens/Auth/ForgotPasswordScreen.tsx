@@ -8,6 +8,7 @@ import type { AuthScreenProps } from '../../types/navigation';
 const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const onResetPassword = async () => {
@@ -17,7 +18,9 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
       return;
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://www.cannasseur.app/reset-password'
+    });
 
     if (error) {
       setError('Invalid email.');
@@ -26,7 +29,7 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
     }
 
     setIsLoading(false);
-    navigation.goBack();
+    setNotice('Please check your email.');
   };
 
   return (
@@ -44,10 +47,11 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
         onChangeText={email => {
           setEmail(email);
           setError('');
+          setNotice('');
         }}
         style={styles.input}
       />
-      <Text style={styles.error}>{error}</Text>
+      <Text style={error ? styles.error : styles.notice}>{error || notice}</Text>
       <TouchableOpacity
         style={styles.resetPasswordButton}
         onPress={() => {
@@ -95,6 +99,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'WorkSans',
     color: '#f00',
+    height: 24
+  },
+  notice: {
+    fontSize: 16,
+    fontFamily: 'WorkSans',
+    color: '#000',
     height: 24
   },
   resetPasswordButton: {
