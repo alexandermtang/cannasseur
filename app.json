@@ -3,6 +3,7 @@
     "name": "cannasseur",
     "description": "Become your own cannabis expert",
     "slug": "cannasseur",
+    "scheme": "cannasseur",
     "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/cannabis.png",

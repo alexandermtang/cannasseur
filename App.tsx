@@ -34,6 +34,17 @@ SplashScreen.preventAutoHideAsync();
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
 const AppStackNavigator = createNativeStackNavigator<AppStackParamList>();
 
+// Lets `cannasseur://login` (e.g. the button on the email-confirmation page)
+// drop the user straight onto Login instead of just opening the app.
+const linking = {
+  prefixes: ['cannasseur://'],
+  config: {
+    screens: {
+      Login: 'login'
+    }
+  }
+};
+
 const appScreenOptions = {
   headerStyle: { backgroundColor: '#F4F3EF' },
   headerTintColor: '#000',
@@ -125,7 +136,9 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer>{session ? <AppStack /> : <AuthStack />}</NavigationContainer>
+        <NavigationContainer linking={linking}>
+          {session ? <AppStack /> : <AuthStack />}
+        </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
