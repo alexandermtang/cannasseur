@@ -41,11 +41,12 @@ export const homeScreenOptions = ({
 }: AppScreenProps<'Home'>): NativeStackNavigationOptions => ({
   title: 'LOG BOOK',
   headerRight: () => (
-    <HeaderButton name={'person-circle-outline'} onPress={() => navigation.push('Me')} />
+    <HeaderButton name={'person-outline'} onPress={() => navigation.push('Me')} />
   )
 });
 
 const MODAL_ROW_HEIGHT = 56; // matches FilterButton and modalHeaderContainer
+const SEARCH_DEBOUNCE_MS = 250;
 
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   const { height: windowHeight } = useWindowDimensions();
@@ -61,8 +62,10 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   );
   const [showYearModal, setShowYearModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchInput, setSearchInput] = useState(() => getHomeFilters().searchText);
   const bottomAnim = useRef(new Animated.Value(-600)).current;
   const yearBottomAnim = useRef(new Animated.Value(-600)).current;
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getLogs = useCallback(async () => {
     const userId = await currentUserId();
@@ -105,6 +108,25 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     setHomeFilters({ searchText: text });
     setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), text), sortType));
   };
+
+  // The text input updates immediately so typing feels responsive, but the
+  // actual filter (and, via getLogs' searchText dependency, a Supabase
+  // refetch) waits for a pause in typing rather than firing on every key.
+  const onSearchInputChange = (text: string) => {
+    setSearchInput(text);
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+    searchDebounceRef.current = setTimeout(() => search(text), SEARCH_DEBOUNCE_MS);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
 
   // `bottom` is a layout property, so this cannot run on the native driver.
   const animateSheet = (toValue: number, onComplete?: () => void) => {
@@ -194,7 +216,7 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         availableYears.length > 1
           ? () => (
               <HeaderButton
-                name={'calendar-clear'}
+                name={'calendar-clear-outline'}
                 size={24}
                 onPress={() => showYearFilterModal()}
               />
@@ -254,16 +276,16 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View>
-          <Ionicons style={styles.searchIcon} name={'search'} size={32} />
+          <Ionicons style={styles.searchIcon} name={'search-outline'} size={32} />
           <TextInput
             style={styles.searchInput}
             placeholder={'Search strain or tag'}
-            value={searchText}
-            onChangeText={text => search(text)}
+            value={searchInput}
+            onChangeText={onSearchInputChange}
           />
         </View>
         <TouchableOpacity style={styles.filterContainer} onPress={() => showFilterModal()}>
-          <Ionicons style={styles.filterIcon} name={'filter'} size={32} />
+          <Ionicons style={styles.filterIcon} name={'funnel'} size={32} />
           <Text style={styles.filterText}>{filterText}</Text>
         </TouchableOpacity>
       </View>
