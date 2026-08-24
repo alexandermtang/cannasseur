@@ -1,3 +1,8 @@
+// DEAD CODE (for now): password reset went webpage-only, so nothing should
+// render this screen anymore. Kept in case the native in-app flow comes
+// back later. App.tsx still imports and can render it via
+// isPasswordRecovery, but nothing produces a cannasseur://reset-password
+// deep link anymore to trigger that path.
 import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
