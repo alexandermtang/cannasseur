@@ -15,7 +15,7 @@ export const viewLogScreenOptions = ({
 }: AppScreenProps<'ViewLog'>): NativeStackNavigationOptions => ({
   title: moment(route.params.log.date).format('MM/DD/YYYY'),
   headerLeft: () => (
-    <HeaderButton name={'chevron-back-circle-outline'} onPress={() => navigation.goBack()} />
+    <HeaderButton name={'chevron-back'} onPress={() => navigation.goBack()} />
   )
 });
 
