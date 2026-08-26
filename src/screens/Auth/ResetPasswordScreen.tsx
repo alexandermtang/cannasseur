@@ -7,8 +7,8 @@ import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import PrimaryButton from '../../components/PrimaryButton';
-import { supabase } from '../../lib/supabase';
+import PrimaryButton from '@/components/PrimaryButton';
+import { supabase } from '@/lib/supabase';
 
 interface ResetPasswordScreenProps {
   // Called once the password is updated. The recovery session Supabase

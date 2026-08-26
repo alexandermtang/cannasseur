@@ -2,7 +2,7 @@
 // Postgres uses snake_case (`logged_at`, `final_rating`). Keeping the mapping in
 // one place means the screens did not have to be rewritten around a new shape.
 
-import type { Log, LogRow, LogRowInsert } from '../types/log';
+import type { Log, LogRow, LogRowInsert } from '@/types/log';
 
 const RATING_FIELDS = [
   'happy',

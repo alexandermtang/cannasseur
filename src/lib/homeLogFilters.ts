@@ -3,7 +3,7 @@
 // testable without pulling in the whole RN/Expo module graph, and reusable
 // outside the screen component.
 
-import type { Log } from '../types/log';
+import type { Log } from '@/types/log';
 import type { SortType } from './homeFilters';
 
 const MOOD_TYPES = ['happy', 'creative', 'active', 'relaxed', 'sleepy'] as const;

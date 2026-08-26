@@ -3,12 +3,12 @@ import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-nati
 import moment from 'moment';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import StarRating from '../components/StarRating';
-import CircleRating from '../components/CircleRating';
-import HeaderButton from '../components/HeaderButton';
-import PrimaryButton from '../components/PrimaryButton';
-import type { Log } from '../types/log';
-import type { AppScreenProps, RatingsType } from '../types/navigation';
+import StarRating from '@/components/StarRating';
+import CircleRating from '@/components/CircleRating';
+import HeaderButton from '@/components/HeaderButton';
+import PrimaryButton from '@/components/PrimaryButton';
+import type { Log } from '@/types/log';
+import type { AppScreenProps, RatingsType } from '@/types/navigation';
 
 export const viewLogScreenOptions = ({
   navigation,

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Image } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import PrimaryButton from '../../components/PrimaryButton';
-import TertiaryButton from '../../components/TertiaryButton';
-import { supabase } from '../../lib/supabase';
-import type { AuthScreenProps } from '../../types/navigation';
+import PrimaryButton from '@/components/PrimaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
+import { supabase } from '@/lib/supabase';
+import type { AuthScreenProps } from '@/types/navigation';
 
 const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
   const [email, setEmail] = useState('');

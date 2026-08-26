@@ -3,10 +3,10 @@ import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-nativ
 import Checkbox from 'expo-checkbox';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import PrimaryButton from '../../components/PrimaryButton';
-import TertiaryButton from '../../components/TertiaryButton';
-import { supabase } from '../../lib/supabase';
-import type { AuthScreenProps } from '../../types/navigation';
+import PrimaryButton from '@/components/PrimaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
+import { supabase } from '@/lib/supabase';
+import type { AuthScreenProps } from '@/types/navigation';
 
 const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
   const [name, setName] = useState('');
