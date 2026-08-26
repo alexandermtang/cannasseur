@@ -1,8 +1,6 @@
 import React from 'react';
 import StarRating, { StarRatingProps } from './StarRating';
 
-// Solid circles rather than stars: grey when empty, black when filled.
-// `circle` was the Ionicons v4 name; the current set calls it `ellipse`.
 const CircleRating = (props: StarRatingProps) => (
   <StarRating
     disabled={false}

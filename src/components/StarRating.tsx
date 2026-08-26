@@ -2,11 +2,6 @@ import React from 'react';
 import { Pressable, View, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// Local replacement for `react-native-star-rating`, which is frozen at 2018 code
-// and depends on `react-native-vector-icons` — a native module Expo Go does not
-// bundle. Prop names match the old library so call sites did not have to change.
-// Size still comes from `starStyle.fontSize`, as it did before.
-
 const DEFAULT_SIZE = 24;
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -22,9 +17,6 @@ export interface StarRatingProps {
   emptyStar?: IconName;
   fullStarColor?: string;
   emptyStarColor?: string;
-  // Mood/medical ratings are optional (0 = not rated), so tapping the
-  // current rating again clears it. The final 1-5 rating is required, so
-  // it stays plain tap-to-set.
   allowClear?: boolean;
 }
 

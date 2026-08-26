@@ -6,12 +6,6 @@ jest.mock('@expo/vector-icons', () => ({
   Ionicons: (props: any) => require('react').createElement('Ionicons', props)
 }));
 
-// A generic chainable query mock - screens call different combinations of
-// .select/.eq/.order/.update/.insert/.delete before awaiting the result, and
-// each one just needs to resolve to *something* without throwing so a
-// screen's initial render completes. .single() is the one exception: it's
-// asking for one record rather than a list, so it gets its own resolved
-// shape instead of the list default.
 jest.mock('../lib/supabase', () => {
   const makeChain = (): any => {
     const chain: any = {
@@ -54,9 +48,6 @@ import ViewLogScreen from './ViewLogScreen';
 import HomeScreen from './HomeScreen';
 import LogNewSessionScreen from './LogNewSessionScreen';
 
-// Every navigation method a screen under test might call - none of them
-// actually navigate anywhere here, they just need to exist so a screen that
-// calls navigation.setOptions() (or similar) on mount doesn't throw.
 const navigation: any = {
   navigate: jest.fn(),
   goBack: jest.fn(),
@@ -86,11 +77,6 @@ const log: any = {
   insomnia: 1
 };
 
-// Flattens every host node in a rendered tree down to its tag, its text (if
-// any), and its resolved style - not the tree of React elements. This is
-// what actually gets drawn on screen, so it's what a snapshot should track:
-// a style object move, a width change, a color swap all show up as a diff
-// here even when nothing about the component tree's shape changed.
 const flatten = (node: any, depth = 0, out: string[] = []): string[] => {
   if (node === null || node === undefined || typeof node !== 'object') {
     return out;
@@ -113,13 +99,6 @@ const flatten = (node: any, depth = 0, out: string[] = []): string[] => {
   return out;
 };
 
-// Async act, not the sync version: a few of these screens fire an async IIFE
-// inside useEffect (HomeScreen, MeScreen, LogNewSessionScreen all fetch on
-// mount). Sync act only flushes synchronous effects, so those promises'
-// state updates would otherwise land after the test - and after later tests
-// unmount their own renderers - which crashes the process instead of just
-// failing the assertion. Async act flushes the microtask queue until it's
-// stable, so those updates happen inside this test, not after it.
 const renderLayout = async (element: React.ReactElement) => {
   let tree: renderer.ReactTestRenderer;
   await act(async () => {
