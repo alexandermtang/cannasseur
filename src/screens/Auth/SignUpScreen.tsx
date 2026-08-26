@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   backButton: {
-    marginTop: 90,
+    marginTop: 83,
     marginBottom: 16
   },
   error: {

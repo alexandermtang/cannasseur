@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     height: 24
   },
   backButton: {
-    marginTop: 74
+    marginTop: 89
   }
 });
 
