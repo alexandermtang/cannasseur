@@ -41,7 +41,7 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
         textContent={'Sending reset password email...'}
         textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
       />
-      <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+      <Image source={require('@assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
       <TextInput
         autoCapitalize={'none'}

@@ -8,7 +8,7 @@ import type { AuthScreenProps } from '@/types/navigation';
 
 const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => (
   <View style={styles.container}>
-    <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+    <Image source={require('@assets/cannabis.png')} style={styles.logo} />
     <Text style={styles.title}>cannasseur</Text>
     <PrimaryButton
       style={styles.signUpButton}

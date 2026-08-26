@@ -55,7 +55,7 @@ const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
         textContent={'Updating password and logging in...'}
         textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
       />
-      <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+      <Image source={require('@assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
       <View style={styles.inputs}>
         <TextInput
