@@ -8,7 +8,7 @@ import {
   isMoodField,
   isMedicalField
 } from './homeLogFilters';
-import type { Log } from '../types/log';
+import type { Log } from '@/types/log';
 
 let idCounter = 0;
 

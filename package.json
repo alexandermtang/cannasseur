@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/react": "^19.2.18",
+    "babel-plugin-module-resolver": "^5.0.3",
     "babel-preset-expo": "~54.0.10",
     "jest": "~29.7.0",
     "jest-expo": "~54.0.18",

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import PrimaryButton from '../../components/PrimaryButton';
-import TertiaryButton from '../../components/TertiaryButton';
-import { supabase } from '../../lib/supabase';
-import type { AuthScreenProps } from '../../types/navigation';
+import PrimaryButton from '@/components/PrimaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
+import { supabase } from '@/lib/supabase';
+import type { AuthScreenProps } from '@/types/navigation';
 
 const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>) => {
   const [email, setEmail] = useState('');
@@ -41,7 +41,7 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
         textContent={'Sending reset password email...'}
         textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
       />
-      <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+      <Image source={require('@assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
       <TextInput
         autoCapitalize={'none'}
