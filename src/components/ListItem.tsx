@@ -6,7 +6,7 @@ import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSw
 import type { SharedValue } from 'react-native-reanimated';
 
 import StarRating from './StarRating';
-import type { Log } from '../types/log';
+import type { Log } from '@/types/log';
 
 const DELETE_WIDTH = 96;
 

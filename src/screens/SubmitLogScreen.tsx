@@ -4,13 +4,13 @@ import moment from 'moment';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import StarRating from '../components/StarRating';
-import PrimaryButton from '../components/PrimaryButton';
-import HeaderButton from '../components/HeaderButton';
-import { supabase, currentUserId } from '../lib/supabase';
-import { toRow } from '../lib/logs';
-import type { Log } from '../types/log';
-import type { AppScreenProps } from '../types/navigation';
+import StarRating from '@/components/StarRating';
+import PrimaryButton from '@/components/PrimaryButton';
+import HeaderButton from '@/components/HeaderButton';
+import { supabase, currentUserId } from '@/lib/supabase';
+import { toRow } from '@/lib/logs';
+import type { Log } from '@/types/log';
+import type { AppScreenProps } from '@/types/navigation';
 
 export const submitLogScreenOptions = ({
   navigation,

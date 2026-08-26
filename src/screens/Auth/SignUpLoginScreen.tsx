@@ -1,14 +1,14 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
 
-import PrimaryButton from '../../components/PrimaryButton';
-import SecondaryButton from '../../components/SecondaryButton';
-import TertiaryButton from '../../components/TertiaryButton';
-import type { AuthScreenProps } from '../../types/navigation';
+import PrimaryButton from '@/components/PrimaryButton';
+import SecondaryButton from '@/components/SecondaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
+import type { AuthScreenProps } from '@/types/navigation';
 
 const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => (
   <View style={styles.container}>
-    <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
+    <Image source={require('@assets/cannabis.png')} style={styles.logo} />
     <Text style={styles.title}>cannasseur</Text>
     <PrimaryButton
       style={styles.signUpButton}

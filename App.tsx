@@ -15,9 +15,9 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import type { Session } from '@supabase/supabase-js';
 
-import { supabase } from './src/lib/supabase';
-import { resetHomeFilters } from './src/lib/homeFilters';
-import type { AuthStackParamList, AppStackParamList } from './src/types/navigation';
+import { supabase } from '@/lib/supabase';
+import { resetHomeFilters } from '@/lib/homeFilters';
+import type { AuthStackParamList, AppStackParamList } from '@/types/navigation';
 
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import SignUpScreen from './src/screens/Auth/SignUpScreen';
