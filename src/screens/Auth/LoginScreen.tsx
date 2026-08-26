@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Image } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import PrimaryButton from '../../components/PrimaryButton';
+import TertiaryButton from '../../components/TertiaryButton';
 import { supabase } from '../../lib/supabase';
 import type { AuthScreenProps } from '../../types/navigation';
 
@@ -55,18 +57,18 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
         />
       </View>
       <Text style={styles.error}>{error}</Text>
-      <TouchableOpacity
-        style={styles.loginButton}
+      <PrimaryButton
+        text={'LOG IN'}
         onPress={() => {
           setIsLoading(true);
           onPress();
         }}
-      >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>LOG IN</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
-      </TouchableOpacity>
+      />
+      <TertiaryButton
+        style={styles.backButton}
+        text={'GO BACK'}
+        onPress={() => navigation.goBack()}
+      />
     </View>
   );
 };
@@ -116,25 +118,7 @@ const styles = StyleSheet.create({
     color: '#f00',
     height: 24
   },
-  loginButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#000'
-  },
-  buttonText: {
-    fontFamily: 'WorkSans',
-    fontSize: 16
-  },
   backButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 96
   }
 });

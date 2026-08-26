@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, Image, StyleSheet, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import PrimaryButton from '../../components/PrimaryButton';
+import TertiaryButton from '../../components/TertiaryButton';
 import { supabase } from '../../lib/supabase';
 import type { AuthScreenProps } from '../../types/navigation';
 
@@ -52,18 +54,19 @@ const ForgotPasswordScreen = ({ navigation }: AuthScreenProps<'ForgotPassword'>)
         style={styles.input}
       />
       <Text style={error ? styles.error : styles.notice}>{error || notice}</Text>
-      <TouchableOpacity
+      <PrimaryButton
         style={styles.resetPasswordButton}
+        text={'RESET PASSWORD'}
         onPress={() => {
           setIsLoading(true);
           onResetPassword();
         }}
-      >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>RESET PASSWORD</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
-      </TouchableOpacity>
+      />
+      <TertiaryButton
+        style={styles.backButton}
+        text={'GO BACK'}
+        onPress={() => navigation.goBack()}
+      />
     </View>
   );
 };
@@ -108,26 +111,10 @@ const styles = StyleSheet.create({
     height: 24
   },
   resetPasswordButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#000',
     marginTop: 4
   },
   backButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 136
-  },
-  buttonText: {
-    fontFamily: 'WorkSans',
-    fontSize: 16
   }
 });
 

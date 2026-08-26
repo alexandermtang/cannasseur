@@ -1,30 +1,30 @@
 import React from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, Image, StyleSheet } from 'react-native';
 
+import PrimaryButton from '../../components/PrimaryButton';
+import SecondaryButton from '../../components/SecondaryButton';
+import TertiaryButton from '../../components/TertiaryButton';
 import type { AuthScreenProps } from '../../types/navigation';
 
 const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => (
   <View style={styles.container}>
     <Image source={require('../../../assets/cannabis.png')} style={styles.logo} />
     <Text style={styles.title}>cannasseur</Text>
-    <TouchableOpacity
-      style={[styles.button, { backgroundColor: '#000', marginTop: 32 }]}
+    <PrimaryButton
+      style={styles.signUpButton}
+      text={'SIGN UP'}
       onPress={() => navigation.navigate('SignUp')}
-    >
-      <Text style={[styles.buttonText, { color: '#fff' }]}>SIGN UP</Text>
-    </TouchableOpacity>
-    <TouchableOpacity
-      style={[styles.button, { marginTop: 16 }]}
+    />
+    <SecondaryButton
+      style={styles.logInButton}
+      text={'LOG IN'}
       onPress={() => navigation.navigate('Login')}
-    >
-      <Text style={styles.buttonText}>LOG IN</Text>
-    </TouchableOpacity>
-    <TouchableOpacity
-      style={[styles.forgotPasswordButton, { marginTop: 120 }]}
+    />
+    <TertiaryButton
+      style={styles.forgotPasswordButton}
+      text={'FORGOT PASSWORD?'}
       onPress={() => navigation.navigate('ForgotPassword')}
-    >
-      <Text style={styles.buttonText}>FORGOT PASSWORD?</Text>
-    </TouchableOpacity>
+    />
   </View>
 );
 
@@ -50,24 +50,15 @@ const styles = StyleSheet.create({
   //   zIndex: 200,
   //   backgroundColor: '#FFF'
   // },
-  button: {
-    borderRadius: 8,
+  signUpButton: {
     borderWidth: 1,
-    width: '80%',
-    // left: '10%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 48
+    marginTop: 32
+  },
+  logInButton: {
+    marginTop: 16
   },
   forgotPasswordButton: {
-    width: '80%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 48
-  },
-  buttonText: {
-    fontFamily: 'WorkSans',
-    fontSize: 16
+    marginTop: 120
   }
 });
 export default SignUpLoginScreen;

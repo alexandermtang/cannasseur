@@ -4,9 +4,10 @@
 // isPasswordRecovery, but nothing produces a cannasseur://reset-password
 // deep link anymore to trigger that path.
 import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, Image, StyleSheet, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import PrimaryButton from '../../components/PrimaryButton';
 import { supabase } from '../../lib/supabase';
 
 interface ResetPasswordScreenProps {
@@ -79,15 +80,13 @@ const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
         />
       </View>
       <Text style={styles.error}>{error}</Text>
-      <TouchableOpacity
-        style={styles.submitButton}
+      <PrimaryButton
+        text={'UPDATE PASSWORD'}
         onPress={() => {
           setIsLoading(true);
           onSubmit();
         }}
-      >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>UPDATE PASSWORD</Text>
-      </TouchableOpacity>
+      />
       {/* Matches the box LoginScreen's GO BACK button would occupy below LOG
           IN - without it, this screen's shorter content re-centers and
           UPDATE PASSWORD sits lower than LOG IN does. */}
@@ -130,19 +129,6 @@ const styles = StyleSheet.create({
     fontFamily: 'WorkSans',
     color: '#f00',
     height: 24
-  },
-  submitButton: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#000'
-  },
-  buttonText: {
-    fontFamily: 'WorkSans',
-    fontSize: 16
   },
   backButtonSpacer: {
     width: '80%',
