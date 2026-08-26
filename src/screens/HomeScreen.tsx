@@ -17,13 +17,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import ListItem from '../components/ListItem';
-import PrimaryButton from '../components/PrimaryButton';
-import HeaderButton from '../components/HeaderButton';
-import { supabase, currentUserId } from '../lib/supabase';
-import { fromRow } from '../lib/logs';
-import { getHomeFilters, setHomeFilters } from '../lib/homeFilters';
-import type { SortType } from '../lib/homeFilters';
+import ListItem from '@/components/ListItem';
+import PrimaryButton from '@/components/PrimaryButton';
+import HeaderButton from '@/components/HeaderButton';
+import { supabase, currentUserId } from '@/lib/supabase';
+import { fromRow } from '@/lib/logs';
+import { getHomeFilters, setHomeFilters } from '@/lib/homeFilters';
+import type { SortType } from '@/lib/homeFilters';
 import {
   isMoodField,
   isMedicalField,
@@ -33,9 +33,9 @@ import {
   sortLogs,
   searchLogs,
   filterByYear
-} from '../lib/homeLogFilters';
-import type { Log } from '../types/log';
-import type { AppScreenProps } from '../types/navigation';
+} from '@/lib/homeLogFilters';
+import type { Log } from '@/types/log';
+import type { AppScreenProps } from '@/types/navigation';
 
 export const homeScreenOptions = ({
   navigation

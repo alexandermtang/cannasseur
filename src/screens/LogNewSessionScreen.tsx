@@ -4,12 +4,12 @@ import moment from 'moment';
 import Dialog from 'react-native-dialog';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import CircleRating from '../components/CircleRating';
-import PrimaryButton from '../components/PrimaryButton';
-import HeaderButton from '../components/HeaderButton';
-import { supabase, currentUserId } from '../lib/supabase';
-import type { LogKind } from '../types/log';
-import type { AppScreenProps, RatingsType } from '../types/navigation';
+import CircleRating from '@/components/CircleRating';
+import PrimaryButton from '@/components/PrimaryButton';
+import HeaderButton from '@/components/HeaderButton';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { LogKind } from '@/types/log';
+import type { AppScreenProps, RatingsType } from '@/types/navigation';
 
 const DEFAULT_TAGS = ['Laughing', 'Socializing', 'Yoga', 'Munchies', 'Movies', 'Ideas'];
 

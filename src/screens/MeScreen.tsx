@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import PrimaryButton from '../components/PrimaryButton';
-import HeaderButton from '../components/HeaderButton';
-import { supabase, currentUserId } from '../lib/supabase';
-import type { AppScreenProps } from '../types/navigation';
+import PrimaryButton from '@/components/PrimaryButton';
+import HeaderButton from '@/components/HeaderButton';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { AppScreenProps } from '@/types/navigation';
 
 export const meScreenOptions = ({
   navigation
