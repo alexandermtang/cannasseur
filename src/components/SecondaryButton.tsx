@@ -5,8 +5,6 @@ interface SecondaryButtonProps extends TouchableOpacityProps {
   text: string;
 }
 
-// Outlined, unfilled — the alternative to whatever the PrimaryButton on the
-// same screen does (LOG IN next to SIGN UP).
 const SecondaryButton = ({ text, style, ...props }: SecondaryButtonProps) => (
   <TouchableOpacity {...props} style={[styles.button, style]}>
     <Text style={styles.text}>{text}</Text>

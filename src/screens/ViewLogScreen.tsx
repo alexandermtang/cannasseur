@@ -243,8 +243,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     color: '#9B9B9B'
   },
-  // Carries over what the shared tag-chip `button` style used to give this
-  // one: chip padding, border and 4pt margin, on top of its own placement.
   editButton: {
     padding: 8,
     borderWidth: 1,
