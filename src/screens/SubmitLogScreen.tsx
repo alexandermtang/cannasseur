@@ -5,7 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import StarRating from '../components/StarRating';
-import BlackButton from '../components/BlackButton';
+import PrimaryButton from '../components/PrimaryButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { toRow } from '../lib/logs';
@@ -93,7 +93,7 @@ const SubmitLogScreen = ({ navigation, route }: AppScreenProps<'SubmitLog'>) => 
         value={notes}
       />
       <View style={styles.buttonContainer}>
-        <BlackButton onPress={() => onSubmit()} text={'SUBMIT'} />
+        <PrimaryButton style={styles.button} onPress={() => onSubmit()} text={'SUBMIT'} />
       </View>
     </KeyboardAwareScrollView>
   );
@@ -125,18 +125,7 @@ const styles = StyleSheet.create({
     borderColor: '#d8d8d8'
   },
   button: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#000',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8
-  },
-  buttonText: {
-    color: '#FFF',
-    fontFamily: 'WorkSans',
-    fontSize: 16
+    width: '100%'
   },
   notesInput: {
     borderWidth: 1,

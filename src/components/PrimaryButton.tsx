@@ -1,31 +1,30 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
 
-interface BlackButtonProps extends TouchableOpacityProps {
+interface PrimaryButtonProps extends TouchableOpacityProps {
   text: string;
 }
 
-const BlackButton = (props: BlackButtonProps) => (
-  <TouchableOpacity {...props} style={styles.button}>
-    <Text style={styles.buttonText}>{props.text}</Text>
+const PrimaryButton = ({ text, style, ...props }: PrimaryButtonProps) => (
+  <TouchableOpacity {...props} style={[styles.button, style]}>
+    <Text style={styles.text}>{text}</Text>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   button: {
-    width: '100%',
+    width: '80%',
     height: 48,
-    backgroundColor: '#000',
-    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8
+    borderRadius: 8,
+    backgroundColor: '#000'
   },
-  buttonText: {
+  text: {
     color: '#FFF',
     fontFamily: 'WorkSans',
     fontSize: 16
   }
 });
 
-export default BlackButton;
+export default PrimaryButton;

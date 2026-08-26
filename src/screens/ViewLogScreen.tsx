@@ -6,6 +6,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import StarRating from '../components/StarRating';
 import CircleRating from '../components/CircleRating';
 import HeaderButton from '../components/HeaderButton';
+import PrimaryButton from '../components/PrimaryButton';
 import type { Log } from '../types/log';
 import type { AppScreenProps, RatingsType } from '../types/navigation';
 
@@ -118,12 +119,11 @@ const ViewLogScreen = ({ navigation, route }: AppScreenProps<'ViewLog'>) => {
       </View>
       {log.notes && <View style={styles.line} />}
       {log.notes && <Text style={styles.notes}>"{log.notes}"</Text>}
-      <TouchableOpacity
-        style={[styles.button, styles.editButton]}
+      <PrimaryButton
+        style={styles.editButton}
+        text={'EDIT'}
         onPress={() => navigation.push('LogNewSession', { log, initialRatingsType: ratingsType })}
-      >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>EDIT</Text>
-      </TouchableOpacity>
+      />
     </ScrollView>
   );
 };
@@ -244,10 +244,12 @@ const styles = StyleSheet.create({
     color: '#9B9B9B'
   },
   editButton: {
+    padding: 8,
+    borderWidth: 1,
+    margin: 4,
+    minWidth: 80,
     left: '10%',
-    width: '80%',
-    marginBottom: 48,
-    backgroundColor: '#000'
+    marginBottom: 48
   }
 });
 

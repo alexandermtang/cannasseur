@@ -5,7 +5,7 @@ import Dialog from 'react-native-dialog';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import CircleRating from '../components/CircleRating';
-import BlackButton from '../components/BlackButton';
+import PrimaryButton from '../components/PrimaryButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import type { LogKind } from '../types/log';
@@ -239,7 +239,8 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
         </TouchableOpacity>
       </View>
       <View style={styles.nextButtonContainer}>
-        <BlackButton
+        <PrimaryButton
+          style={styles.nextButton}
           text={'NEXT'}
           onPress={() => {
             if (isComplete()) {
@@ -405,6 +406,9 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingLeft: 16,
     paddingBottom: 48
+  },
+  nextButton: {
+    width: '100%'
   }
 });
 

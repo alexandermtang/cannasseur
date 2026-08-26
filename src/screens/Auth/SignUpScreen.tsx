@@ -3,6 +3,8 @@ import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-nativ
 import Checkbox from 'expo-checkbox';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import PrimaryButton from '../../components/PrimaryButton';
+import TertiaryButton from '../../components/TertiaryButton';
 import { supabase } from '../../lib/supabase';
 import type { AuthScreenProps } from '../../types/navigation';
 
@@ -123,18 +125,19 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
         </TouchableOpacity>
       </View>
       <Text style={styles.error}>{error}</Text>
-      <TouchableOpacity
-        style={[styles.button, styles.signUpButton]}
+      <PrimaryButton
+        style={styles.signUpButton}
+        text={'CREATE ACCOUNT'}
         onPress={() => {
           setIsLoading(true);
           onSignUp();
         }}
-      >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>CREATE ACCOUNT</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, { marginTop: 80 }]} onPress={() => navigation.goBack()}>
-        <Text style={[styles.buttonText, { color: '#000' }]}>GO BACK</Text>
-      </TouchableOpacity>
+      />
+      <TertiaryButton
+        style={styles.backButton}
+        text={'GO BACK'}
+        onPress={() => navigation.goBack()}
+      />
     </View>
   );
 };
@@ -155,19 +158,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     width: '80%'
   },
-  button: {
-    width: '80%',
-    height: 48,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16
-  },
   signUpButton: {
-    backgroundColor: '#000',
+    marginBottom: 16,
     borderColor: '#000',
-    borderWidth: 1,
-    borderRadius: 8
+    borderWidth: 1
+  },
+  backButton: {
+    marginTop: 83,
+    marginBottom: 16
   },
   error: {
     fontSize: 16,
@@ -182,10 +180,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '80%',
     marginTop: 16
-  },
-  buttonText: {
-    fontFamily: 'WorkSans',
-    fontSize: 16
   }
 });
 

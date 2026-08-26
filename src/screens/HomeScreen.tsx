@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import ListItem from '../components/ListItem';
-import BlackButton from '../components/BlackButton';
+import PrimaryButton from '../components/PrimaryButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import { fromRow } from '../lib/logs';
@@ -338,7 +338,8 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         />
       )}
       <View style={styles.footerContainer}>
-        <BlackButton
+        <PrimaryButton
+          style={styles.logNewSessionButton}
           onPress={() => navigation.navigate('LogNewSession')}
           text={'LOG NEW SESSION'}
         />
@@ -469,6 +470,9 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#FFF'
+  },
+  logNewSessionButton: {
+    width: '100%'
   },
   footerContainer: {
     backgroundColor: '#F4F3EF',

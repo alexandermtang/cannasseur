@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import BlackButton from '../components/BlackButton';
+import PrimaryButton from '../components/PrimaryButton';
 import HeaderButton from '../components/HeaderButton';
 import { supabase, currentUserId } from '../lib/supabase';
 import type { AppScreenProps } from '../types/navigation';
@@ -52,7 +52,7 @@ const MeScreen = () => {
     <View style={styles.container}>
       <Text style={styles.text}>{name}</Text>
       <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
-      <BlackButton onPress={() => logout()} text={'LOG OUT'} />
+      <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
     </View>
   );
 };
@@ -71,6 +71,9 @@ const styles = StyleSheet.create({
     fontFamily: 'PlayfairDisplay-Regular',
     height: 32,
     marginBottom: 16
+  },
+  button: {
+    width: '100%'
   }
 });
 
