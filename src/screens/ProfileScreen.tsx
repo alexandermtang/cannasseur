@@ -8,6 +8,7 @@ import PrimaryButton from '@/components/PrimaryButton';
 import TertiaryButton from '@/components/TertiaryButton';
 import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
+import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
 
 export const profileScreenOptions = ({
@@ -62,6 +63,7 @@ const ProfileScreen = () => {
       return;
     }
 
+    markAccountDeleted();
     await supabase.auth.signOut();
   };
 
