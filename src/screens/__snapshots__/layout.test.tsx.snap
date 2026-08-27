@@ -1,0 +1,287 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ForgotPasswordScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center", width:"100%"}>
+  <Image {bottom:16, height:150, width:150}>
+  <Text "cannasseur" {bottom:16, fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
+  <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8, width:"80%"}>
+  <Text {color:"#000", fontFamily:"WorkSans", fontSize:16, height:24}>
+  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", marginTop:4, opacity:1, width:"80%"}>
+    <Text "RESET PASSWORD" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:136, opacity:1, width:"80%"}>
+    <Text "GO BACK" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`HomeScreen layout 1`] = `
+"<View {backgroundColor:"#FFF", display:"flex", flex:1, justifyContent:"space-between"}>
+  <View {}>
+    <View {}>
+      <Ionicons {left:12, position:"absolute", top:12, zIndex:100}>
+      <TextInput {backgroundColor:"#FFF", borderBottomWidth:1, borderColor:"#d8d8d8", fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:56, padding:8, paddingLeft:56}>
+    <View {alignItems:"center", borderBottomWidth:1, borderColor:"#d8d8d8", display:"flex", flexDirection:"row", height:56, justifyContent:"center", opacity:1, paddingRight:32}>
+      <Ionicons {padding:8}>
+      <Text "MOST RECENT" {fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", justifyContent:"center"}>
+    <Text "NO LOGS" {fontFamily:"WorkSans", fontSize:16}>
+  <View {backgroundColor:"#F4F3EF", borderColor:"#d8d8d8", borderTopWidth:1, height:148, paddingLeft:32, paddingRight:32, paddingTop:16, width:"100%"}>
+    <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
+      <Text "LOG NEW SESSION" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+    <View {alignItems:"flex-end"}>
+      <Text "0" {fontFamily:"PlayfairDisplay-Regular", fontSize:32}>
+      <Text "STRAIN" {fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`LogNewSessionScreen layout 1`] = `
+"<RCTScrollView {backgroundColor:"#fff", height:"100%", padding:16}>
+  <View {}>
+    <View {}>
+      <Text "NAME OF STRAIN" {fontFamily:"WorkSans", fontSize:16}>
+      <TextInput {borderBottomWidth:1, borderColor:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, paddingBottom:8, paddingTop:8}>
+    <View {alignItems:"center", display:"flex", flexDirection:"row", marginTop:16}>
+      <Text "TYPE" {fontFamily:"WorkSans", fontSize:16, marginRight:48}>
+      <View {opacity:1}>
+        <Text "Flower" {color:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginRight:41}>
+      <View {opacity:1}>
+        <Text "Concentrate" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginRight:41}>
+    <View {display:"flex", flexDirection:"row", marginBottom:8, marginTop:16}>
+      <View {alignItems:"center", marginRight:16, opacity:1, paddingBottom:8, paddingRight:8, paddingTop:8}>
+        <Text "MOOD" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", marginRight:16, opacity:1, paddingBottom:8, paddingRight:8, paddingTop:8}>
+        <Text "MEDICAL" {color:"#9B9B9B", fontFamily:"WorkSans", fontSize:16}>
+    <View {display:"flex", flexDirection:"row", marginBottom:16}>
+      <View {width:"50%"}>
+        <Text "Happy" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Creative" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Active" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Relaxed" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Sleepy" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+      <View {width:"50%"}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+    <Text "TAGS" {fontFamily:"WorkSans", fontSize:16}>
+    <View {display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center", marginTop:16, width:"100%"}>
+      <View {alignItems:"center", backgroundColor:"#000", borderColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Ideas" {color:"#fff", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", backgroundColor:"#000", borderColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Focused" {color:"#fff", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderColor:"#9b9b9b", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Laughing" {color:"#9b9b9b", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderColor:"#9b9b9b", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Socializing" {color:"#9b9b9b", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderColor:"#9b9b9b", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Yoga" {color:"#9b9b9b", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderColor:"#9b9b9b", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Munchies" {color:"#9b9b9b", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderColor:"#9b9b9b", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "Movies" {color:"#9b9b9b", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, opacity:1, padding:8}>
+        <Text "+ ADD" {fontFamily:"WorkSans", fontSize:16}>
+    <View {marginTop:8, paddingBottom:48, paddingLeft:16, paddingRight:16}>
+      <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
+        <Text "NEXT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`LoginScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center", width:"100%"}>
+  <Image {bottom:16, height:150, width:150}>
+  <Text "cannasseur" {bottom:16, fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
+  <View {width:"80%"}>
+    <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
+    <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
+  <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>
+  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"80%"}>
+    <Text "LOG IN" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:89, opacity:1, width:"80%"}>
+    <Text "GO BACK" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`MeScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#FFF", height:"100%", justifyContent:"center", padding:32, width:"100%"}>
+  <Text "n" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:16}>
+  <Text "a@b.c" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:64}>
+  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
+    <Text "LOG OUT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`ResetPasswordScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center", width:"100%"}>
+  <Image {bottom:16, height:150, width:150}>
+  <Text "cannasseur" {bottom:16, fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
+  <View {width:"80%"}>
+    <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
+    <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
+  <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>
+  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"80%"}>
+    <Text "UPDATE PASSWORD" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {height:48, marginTop:96, width:"80%"}>"
+`;
+
+exports[`SignUpLoginScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center"}>
+  <Image {height:150, width:150}>
+  <Text "cannasseur" {fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
+  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:32, opacity:1, width:"80%"}>
+    <Text "SIGN UP" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:16, opacity:1, width:"80%"}>
+    <Text "LOG IN" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:120, opacity:1, width:"80%"}>
+    <Text "FORGOT PASSWORD?" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`SignUpScreen layout 1`] = `
+"<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center", width:"100%"}>
+  <TextInput {borderBottomWidth:1, fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginTop:16, padding:8, width:"80%"}>
+  <TextInput {borderBottomWidth:1, fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginTop:16, padding:8, width:"80%"}>
+  <TextInput {borderBottomWidth:1, fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginTop:16, padding:8, width:"80%"}>
+  <TextInput {borderBottomWidth:1, fontFamily:"PlayfairDisplay-Regular", fontSize:24, marginTop:16, padding:8, width:"80%"}>
+  <View {alignItems:"center", display:"flex", flexDirection:"row", marginTop:16, width:"80%"}>
+    <View {borderColor:"#657786", borderRadius:2, borderWidth:2, height:28, marginRight:16, width:28}>
+    <View {opacity:1}>
+      <Text "I am over the age of 21." {fontFamily:"WorkSans", fontSize:16}>
+  <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24, marginTop:8}>
+  <View {alignItems:"center", backgroundColor:"#000", borderColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginBottom:16, opacity:1, width:"80%"}>
+    <Text "CREATE ACCOUNT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginBottom:16, marginTop:83, opacity:1, width:"80%"}>
+    <Text "GO BACK" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`SubmitLogScreen layout 1`] = `
+"<RCTScrollView {}>
+  <View {}>
+    <Text "Final Rating" {fontFamily:"PlayfairDisplay-Regular", fontSize:24}>
+    <View {borderBottomWidth:1, borderColor:"#d8d8d8", marginBottom:24, marginTop:24, paddingBottom:24}>
+      <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+    <Text "Any Other Notes?" {fontFamily:"PlayfairDisplay-Regular", fontSize:24}>
+    <Text "(Optional)" {fontFamily:"PlayfairDisplay-Regular", fontSize:16, marginTop:8}>
+    <TextInput {borderRadius:8, borderWidth:1, fontFamily:"PlayfairDisplay-Regular", fontSize:16, height:72, marginBottom:24, marginTop:24, padding:16}>
+    <View {paddingLeft:16, paddingRight:16}>
+      <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
+        <Text "SUBMIT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>"
+`;
+
+exports[`ViewLogScreen layout 1`] = `
+"<RCTScrollView {backgroundColor:"#fff", height:"100%"}>
+  <View {}>
+    <View {backgroundColor:"#F4F3EF", paddingBottom:32, paddingLeft:16, paddingRight:16, paddingTop:32}>
+      <Text "Super Silver Haze" {fontFamily:"PlayfairDisplay-Regular", fontSize:32}>
+    <View {alignItems:"center", display:"flex", justifyContent:"center", marginLeft:"10%", paddingBottom:24, paddingTop:32, width:"80%"}>
+      <Text "FINAL RATING" {fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8, width:"100%"}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+        <View {}>
+          <Ionicons {}>
+    <View {borderBottomWidth:1, borderColor:"#d8d8d8", marginLeft:"10%", width:"80%"}>
+    <View {alignItems:"center", display:"flex", flexDirection:"row", marginBottom:16, marginTop:16}>
+      <Text "TYPE" {fontFamily:"WorkSans", fontSize:16, marginLeft:16, marginRight:32}>
+      <Text "Flower" {fontFamily:"PlayfairDisplay-Regular", fontSize:24}>
+    <View {borderBottomWidth:1, borderColor:"#d8d8d8", marginLeft:"10%", width:"80%"}>
+    <View {display:"flex", flexDirection:"row", marginLeft:16, marginRight:16, marginTop:16}>
+      <View {alignItems:"center", marginRight:16, opacity:1, paddingBottom:8, paddingRight:8, paddingTop:8}>
+        <Text "MOOD" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", marginRight:16, opacity:1, paddingBottom:8, paddingRight:8, paddingTop:8}>
+        <Text "MEDICAL" {color:"#9B9B9B", fontFamily:"WorkSans", fontSize:16}>
+    <View {display:"flex", flexDirection:"row", padding:16}>
+      <View {width:"50%"}>
+        <Text "Happy" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Creative" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Active" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Relaxed" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+        <Text "Sleepy" {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:24, lineHeight:48}>
+      <View {width:"50%"}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+        <View {alignItems:"center", flexDirection:"row", height:48, justifyContent:"space-between", padding:8}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+          <View {}>
+            <Ionicons {}>
+    <View {borderBottomWidth:1, borderColor:"#d8d8d8", marginLeft:"10%", width:"80%"}>
+    <Text "TAGS" {fontFamily:"WorkSans", fontSize:16, marginTop:16, paddingLeft:16}>
+    <View {display:"flex", flexDirection:"row", flexWrap:"wrap", justifyContent:"center", marginBottom:16, marginTop:16, width:"100%"}>
+      <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, padding:8}>
+        <Text "Ideas" {fontFamily:"WorkSans", fontSize:16}>
+      <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", margin:4, minWidth:80, padding:8}>
+        <Text "Focused" {fontFamily:"WorkSans", fontSize:16}>
+    <View {borderBottomWidth:1, borderColor:"#d8d8d8", marginLeft:"10%", width:"80%"}>
+    <Text """ {color:"#9B9B9B", fontFamily:"PlayfairDisplay-Regular", fontSize:16, marginTop:16, paddingBottom:32, paddingLeft:"10%", width:"80%"}>
+    <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", left:"10%", margin:4, marginBottom:48, minWidth:80, opacity:1, padding:8, width:"80%"}>
+      <Text "EDIT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>"
+`;
