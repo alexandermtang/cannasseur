@@ -14,12 +14,14 @@ const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => {
     <View style={styles.container}>
       <Image source={require('@assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
-      {accountDeleted && <Text style={styles.accountDeleted}>{'Account Deleted.'}</Text>}
-      <PrimaryButton
-        style={styles.signUpButton}
-        text={'SIGN UP'}
-        onPress={() => navigation.navigate('SignUp')}
-      />
+      <View style={styles.signUpButtonWrapper}>
+        {accountDeleted && <Text style={styles.accountDeleted}>{'Account Deleted.'}</Text>}
+        <PrimaryButton
+          style={styles.signUpButton}
+          text={'SIGN UP'}
+          onPress={() => navigation.navigate('SignUp')}
+        />
+      </View>
       <SecondaryButton
         style={styles.logInButton}
         text={'LOG IN'}
@@ -56,14 +58,20 @@ const styles = StyleSheet.create({
   //   zIndex: 200,
   //   backgroundColor: '#FFF'
   // },
+  signUpButtonWrapper: {
+    width: '100%',
+    marginTop: 32,
+    alignItems: 'center'
+  },
   accountDeleted: {
+    position: 'absolute',
+    bottom: '100%',
+    marginBottom: 8,
     fontSize: 16,
-    fontFamily: 'WorkSans',
-    marginTop: 16
+    fontFamily: 'WorkSans'
   },
   signUpButton: {
-    borderWidth: 1,
-    marginTop: 32
+    borderWidth: 1
   },
   logInButton: {
     marginTop: 16

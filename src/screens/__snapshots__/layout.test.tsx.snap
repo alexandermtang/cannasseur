@@ -156,8 +156,9 @@ exports[`SignUpLoginScreen layout 1`] = `
 "<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center"}>
   <Image {height:150, width:150}>
   <Text "cannasseur" {fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
-  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:32, opacity:1, width:"80%"}>
-    <Text "SIGN UP" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", marginTop:32, width:"100%"}>
+    <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", opacity:1, width:"80%"}>
+      <Text "SIGN UP" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
   <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:16, opacity:1, width:"80%"}>
     <Text "LOG IN" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
   <View {alignItems:"center", height:48, justifyContent:"center", marginTop:120, opacity:1, width:"80%"}>
