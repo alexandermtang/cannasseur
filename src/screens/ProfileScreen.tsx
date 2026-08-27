@@ -96,7 +96,7 @@ const ProfileScreen = () => {
           color="#f00"
           onPress={() => {
             setDeleteDialogVisible(false);
-            deleteAccount();
+            setTimeout(() => deleteAccount(), 300);
           }}
         />
       </Dialog.Container>
