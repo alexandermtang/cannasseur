@@ -60,10 +60,6 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
 
--- Lets a signed-in user delete their own account from the client (the
--- anon key can't touch auth.users directly, and the service_role key
--- must never ship in the app). Deleting the auth.users row cascades to
--- profiles and logs via their foreign keys above.
 create function delete_user() returns void as $$
 begin
   delete from auth.users where id = auth.uid();
