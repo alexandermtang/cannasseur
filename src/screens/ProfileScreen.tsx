@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import Dialog from 'react-native-dialog';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@/components/PrimaryButton';
@@ -20,6 +21,7 @@ export const profileScreenOptions = ({
 const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -46,13 +48,6 @@ const ProfileScreen = () => {
     await supabase.auth.signOut();
   };
 
-  const confirmDeleteAccount = () => {
-    Alert.alert('Are you sure?', undefined, [
-      { text: 'NO', style: 'cancel' },
-      { text: 'YES', style: 'destructive', onPress: () => deleteAccount() }
-    ]);
-  };
-
   const deleteAccount = async () => {
     // TODO: no account-deletion API exists yet.
   };
@@ -64,9 +59,20 @@ const ProfileScreen = () => {
       <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
       <TertiaryButton
         style={styles.deleteButton}
-        onPress={() => confirmDeleteAccount()}
+        onPress={() => setDeleteDialogVisible(true)}
         text={'DELETE ACCOUNT'}
       />
+      <Dialog.Container visible={deleteDialogVisible}>
+        <Dialog.Title>Are you sure?</Dialog.Title>
+        <Dialog.Button label="NO" onPress={() => setDeleteDialogVisible(false)} />
+        <Dialog.Button
+          label="YES"
+          onPress={() => {
+            setDeleteDialogVisible(false);
+            deleteAccount();
+          }}
+        />
+      </Dialog.Container>
     </View>
   );
 };
@@ -91,7 +97,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     width: '100%',
-    marginTop: 16
+    marginTop: 89
   }
 });
 

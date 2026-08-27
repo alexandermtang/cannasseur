@@ -134,7 +134,7 @@ exports[`ProfileScreen layout 1`] = `
   <Text "a@b.c" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:64}>
   <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
     <Text "LOG OUT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
-  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:16, opacity:1, width:"100%"}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:89, opacity:1, width:"100%"}>
     <Text "DELETE ACCOUNT" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
 `;
 
