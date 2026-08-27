@@ -42,7 +42,7 @@ import LoginScreen from './Auth/LoginScreen';
 import SignUpScreen from './Auth/SignUpScreen';
 import ForgotPasswordScreen from './Auth/ForgotPasswordScreen';
 import ResetPasswordScreen from './Auth/ResetPasswordScreen';
-import MeScreen from './MeScreen';
+import ProfileScreen from './ProfileScreen';
 import SubmitLogScreen from './SubmitLogScreen';
 import ViewLogScreen from './ViewLogScreen';
 import HomeScreen from './HomeScreen';
@@ -135,8 +135,8 @@ test('ResetPasswordScreen layout', async () => {
   expect(await renderLayout(<ResetPasswordScreen onComplete={jest.fn()} />)).toMatchSnapshot();
 });
 
-test('MeScreen layout', async () => {
-  expect(await renderLayout(<MeScreen />)).toMatchSnapshot();
+test('ProfileScreen layout', async () => {
+  expect(await renderLayout(<ProfileScreen />)).toMatchSnapshot();
 });
 
 test('SubmitLogScreen layout', async () => {

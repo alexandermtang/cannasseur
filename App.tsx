@@ -14,18 +14,18 @@ import { supabase } from '@/lib/supabase';
 import { resetHomeFilters } from '@/lib/homeFilters';
 import type { AuthStackParamList, AppStackParamList } from '@/types/navigation';
 
-import LoginScreen from './src/screens/Auth/LoginScreen';
-import SignUpScreen from './src/screens/Auth/SignUpScreen';
-import SignUpLoginScreen from './src/screens/Auth/SignUpLoginScreen';
-import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
+import LoginScreen from '@/screens/Auth/LoginScreen';
+import SignUpScreen from '@/screens/Auth/SignUpScreen';
+import SignUpLoginScreen from '@/screens/Auth/SignUpLoginScreen';
+import ForgotPasswordScreen from '@/screens/Auth/ForgotPasswordScreen';
 
-import HomeScreen, { homeScreenOptions } from './src/screens/HomeScreen';
-import MeScreen, { meScreenOptions } from './src/screens/MeScreen';
+import HomeScreen, { homeScreenOptions } from '@/screens/HomeScreen';
+import ProfileScreen, { profileScreenOptions } from '@/screens/ProfileScreen';
 import LogNewSessionScreen, {
   logNewSessionScreenOptions
-} from './src/screens/LogNewSessionScreen';
-import SubmitLogScreen, { submitLogScreenOptions } from './src/screens/SubmitLogScreen';
-import ViewLogScreen, { viewLogScreenOptions } from './src/screens/ViewLogScreen';
+} from '@/screens/LogNewSessionScreen';
+import SubmitLogScreen, { submitLogScreenOptions } from '@/screens/SubmitLogScreen';
+import ViewLogScreen, { viewLogScreenOptions } from '@/screens/ViewLogScreen';
 
 LogBox.ignoreAllLogs();
 
@@ -64,7 +64,7 @@ const AuthStack = () => (
 const AppStack = () => (
   <AppStackNavigator.Navigator initialRouteName={'Home'} screenOptions={appScreenOptions}>
     <AppStackNavigator.Screen name={'Home'} component={HomeScreen} options={homeScreenOptions} />
-    <AppStackNavigator.Screen name={'Me'} component={MeScreen} options={meScreenOptions} />
+    <AppStackNavigator.Screen name={'Me'} component={ProfileScreen} options={profileScreenOptions} />
     <AppStackNavigator.Screen
       name={'LogNewSession'}
       component={LogNewSessionScreen}

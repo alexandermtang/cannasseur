@@ -128,12 +128,15 @@ exports[`LoginScreen layout 1`] = `
     <Text "GO BACK" {color:"#000", fontFamily:"WorkSans", fontSize:16}>"
 `;
 
-exports[`MeScreen layout 1`] = `
+exports[`ProfileScreen layout 1`] = `
 "<View {alignItems:"center", backgroundColor:"#FFF", height:"100%", justifyContent:"center", padding:32, width:"100%"}>
   <Text "n" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:16}>
   <Text "a@b.c" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:64}>
   <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
-    <Text "LOG OUT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>"
+    <Text "LOG OUT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:64, opacity:1, width:"100%"}>
+    <Text "DELETE ACCOUNT" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
+  <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>"
 `;
 
 exports[`ResetPasswordScreen layout 1`] = `
@@ -153,8 +156,9 @@ exports[`SignUpLoginScreen layout 1`] = `
 "<View {alignItems:"center", backgroundColor:"#F4F3EF", height:"100%", justifyContent:"center"}>
   <Image {height:150, width:150}>
   <Text "cannasseur" {fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
-  <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:32, opacity:1, width:"80%"}>
-    <Text "SIGN UP" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
+  <View {alignItems:"center", marginTop:32, width:"100%"}>
+    <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", opacity:1, width:"80%"}>
+      <Text "SIGN UP" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
   <View {alignItems:"center", borderRadius:8, borderWidth:1, height:48, justifyContent:"center", marginTop:16, opacity:1, width:"80%"}>
     <Text "LOG IN" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
   <View {alignItems:"center", height:48, justifyContent:"center", marginTop:120, opacity:1, width:"80%"}>

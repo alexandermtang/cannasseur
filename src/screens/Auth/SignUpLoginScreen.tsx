@@ -1,32 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
 
 import PrimaryButton from '@/components/PrimaryButton';
 import SecondaryButton from '@/components/SecondaryButton';
 import TertiaryButton from '@/components/TertiaryButton';
+import { consumeAccountDeleted } from '@/lib/accountDeletion';
 import type { AuthScreenProps } from '@/types/navigation';
 
-const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => (
-  <View style={styles.container}>
-    <Image source={require('@assets/cannabis.png')} style={styles.logo} />
-    <Text style={styles.title}>cannasseur</Text>
-    <PrimaryButton
-      style={styles.signUpButton}
-      text={'SIGN UP'}
-      onPress={() => navigation.navigate('SignUp')}
-    />
-    <SecondaryButton
-      style={styles.logInButton}
-      text={'LOG IN'}
-      onPress={() => navigation.navigate('Login')}
-    />
-    <TertiaryButton
-      style={styles.forgotPasswordButton}
-      text={'FORGOT PASSWORD?'}
-      onPress={() => navigation.navigate('ForgotPassword')}
-    />
-  </View>
-);
+const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => {
+  const [accountDeleted, setAccountDeleted] = useState(consumeAccountDeleted);
+
+  useEffect(() => {
+    const unsubscribeBlur = navigation.addListener('blur', () => {
+      setAccountDeleted(false);
+    });
+    return unsubscribeBlur;
+  }, [navigation]);
+
+  return (
+    <View style={styles.container}>
+      <Image source={require('@assets/cannabis.png')} style={styles.logo} />
+      <Text style={styles.title}>cannasseur</Text>
+      <View style={styles.signUpButtonWrapper}>
+        {accountDeleted && <Text style={styles.accountDeleted}>{'Account deleted.'}</Text>}
+        <PrimaryButton
+          style={styles.signUpButton}
+          text={'SIGN UP'}
+          onPress={() => navigation.navigate('SignUp')}
+        />
+      </View>
+      <SecondaryButton
+        style={styles.logInButton}
+        text={'LOG IN'}
+        onPress={() => navigation.navigate('Login')}
+      />
+      <TertiaryButton
+        style={styles.forgotPasswordButton}
+        text={'FORGOT PASSWORD?'}
+        onPress={() => navigation.navigate('ForgotPassword')}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -50,9 +65,20 @@ const styles = StyleSheet.create({
   //   zIndex: 200,
   //   backgroundColor: '#FFF'
   // },
+  signUpButtonWrapper: {
+    width: '100%',
+    marginTop: 32,
+    alignItems: 'center'
+  },
+  accountDeleted: {
+    position: 'absolute',
+    bottom: '100%',
+    marginBottom: 8,
+    fontSize: 16,
+    fontFamily: 'WorkSans'
+  },
   signUpButton: {
-    borderWidth: 1,
-    marginTop: 32
+    borderWidth: 1
   },
   logInButton: {
     marginTop: 16

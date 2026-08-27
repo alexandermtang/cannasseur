@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Dialog from 'react-native-dialog';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@/components/PrimaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
 import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
+import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
 
-export const meScreenOptions = ({
+export const profileScreenOptions = ({
   navigation
 }: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
   title: 'PROFILE',
@@ -16,9 +19,11 @@ export const meScreenOptions = ({
   )
 });
 
-const MeScreen = () => {
+const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -45,11 +50,44 @@ const MeScreen = () => {
     await supabase.auth.signOut();
   };
 
+  const deleteAccount = async () => {
+    const { error } = await supabase.rpc('delete_user');
+
+    if (error) {
+      setDeleteError('Could not delete account. Please try again.');
+      return;
+    }
+
+    markAccountDeleted();
+    await supabase.auth.signOut();
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{name}</Text>
       <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
       <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
+      <TertiaryButton
+        style={styles.deleteButton}
+        onPress={() => {
+          setDeleteError('');
+          setDeleteDialogVisible(true);
+        }}
+        text={'DELETE ACCOUNT'}
+      />
+      <Text style={styles.error}>{deleteError}</Text>
+      <Dialog.Container visible={deleteDialogVisible}>
+        <Dialog.Title>Are you sure you want to delete your account?</Dialog.Title>
+        <Dialog.Button label="Cancel" onPress={() => setDeleteDialogVisible(false)} />
+        <Dialog.Button
+          label="Delete"
+          color="#f00"
+          onPress={() => {
+            setDeleteDialogVisible(false);
+            deleteAccount();
+          }}
+        />
+      </Dialog.Container>
     </View>
   );
 };
@@ -71,7 +109,17 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%'
+  },
+  deleteButton: {
+    width: '100%',
+    marginTop: 64
+  },
+  error: {
+    fontSize: 16,
+    fontFamily: 'WorkSans',
+    color: '#f00',
+    height: 24
   }
 });
 
-export default MeScreen;
+export default ProfileScreen;
