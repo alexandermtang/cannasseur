@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@/components/PrimaryButton';
+import TertiaryButton from '@/components/TertiaryButton';
 import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
 import type { AppScreenProps } from '@/types/navigation';
@@ -48,11 +49,27 @@ const MeScreen = () => {
     await supabase.auth.signOut();
   };
 
+  const confirmDeleteAccount = () => {
+    Alert.alert('Are you sure?', undefined, [
+      { text: 'NO', style: 'cancel' },
+      { text: 'YES', style: 'destructive', onPress: () => deleteAccount() }
+    ]);
+  };
+
+  const deleteAccount = async () => {
+    // TODO: no account-deletion API exists yet.
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{name}</Text>
       <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
       <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
+      <TertiaryButton
+        style={styles.deleteButton}
+        onPress={() => confirmDeleteAccount()}
+        text={'DELETE ACCOUNT'}
+      />
     </View>
   );
 };
@@ -74,6 +91,10 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%'
+  },
+  deleteButton: {
+    width: '100%',
+    marginTop: 16
   }
 });
 
