@@ -15,7 +15,7 @@ const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => {
       <Image source={require('@assets/cannabis.png')} style={styles.logo} />
       <Text style={styles.title}>cannasseur</Text>
       <View style={styles.signUpButtonWrapper}>
-        {accountDeleted && <Text style={styles.accountDeleted}>{'Account Deleted.'}</Text>}
+        {accountDeleted && <Text style={styles.accountDeleted}>{'Account deleted.'}</Text>}
         <PrimaryButton
           style={styles.signUpButton}
           text={'SIGN UP'}

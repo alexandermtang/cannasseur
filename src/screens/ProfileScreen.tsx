@@ -11,6 +11,8 @@ import { supabase, currentUserId } from '@/lib/supabase';
 import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
 
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const profileScreenOptions = ({
   navigation
 }: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
@@ -55,7 +57,7 @@ const ProfileScreen = () => {
   const deleteAccount = async () => {
     setIsDeleting(true);
 
-    const { error } = await supabase.rpc('delete_user');
+    const [{ error }] = await Promise.all([supabase.rpc('delete_user'), wait(1000)]);
 
     if (error) {
       setIsDeleting(false);
