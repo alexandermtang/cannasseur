@@ -43,10 +43,6 @@ const SignUpScreen = ({ navigation }: AuthScreenProps<'SignUp'>) => {
       return;
     }
 
-    // The `name` lands in raw_user_meta_data; the on_auth_user_created trigger
-    // copies it into the profiles row, so there is no manual profile write here.
-    // Email confirmation is off for this project, so signUp returns a session
-    // immediately - onAuthStateChange in App.tsx swaps the stack from there.
     const { error } = await supabase.auth.signUp({
       email,
       password,

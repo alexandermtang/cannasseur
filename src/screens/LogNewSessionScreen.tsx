@@ -17,8 +17,6 @@ export const logNewSessionScreenOptions = ({
   navigation,
   route
 }: AppScreenProps<'LogNewSession'>): NativeStackNavigationOptions => ({
-  // Editing an existing log shows its own date; moment(undefined) falls back
-  // to today, which is correct for a brand new session.
   title: moment(route.params?.log?.date).format('MM/DD/YYYY'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back'} onPress={() => navigation.goBack()} />
@@ -44,8 +42,6 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
   const [insomnia, setInsomnia] = useState(log ? log.insomnia : 0);
 
   const [tags, setTags] = useState<string[]>(log ? log.tags : []);
-  // The user's real, persisted tag palette — the only thing ever written
-  // back to profiles.tags.
   const [paletteTags, setPaletteTags] = useState<string[]>([]);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [newTag, setNewTag] = useState('');
@@ -55,14 +51,8 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
     route.params?.initialRatingsType || 'mood'
   );
 
-  // This log's own tags even if they've since been deleted from the user's
-  // palette — editing an old log should still show (and let you keep) a tag
-  // that no longer exists for new sessions. Stateful (not derived from `log`
-  // directly) so long-pressing one of these removes it from view too, not
-  // just a no-op because it's already gone from the palette.
   const [historicalTags, setHistoricalTags] = useState<string[]>(log ? log.tags || [] : []);
 
-  // Entered tags first, then the rest of the palette, deduped.
   const displayTags = [...historicalTags, ...paletteTags.filter(t => !historicalTags.includes(t))];
 
   useEffect(() => {
@@ -82,7 +72,6 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
         return console.error(error);
       }
 
-      // A profile with no tags yet gets the original starter set.
       const nextPaletteTags: string[] =
         data && data.tags && data.tags.length > 0 ? data.tags : DEFAULT_TAGS;
       setPaletteTags(nextPaletteTags);
@@ -96,8 +85,6 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
 
   const isComplete = () => strain !== '';
 
-  // Takes the tags explicitly: callers used to fire this straight after
-  // setState and read back this.state, which races with React's batching.
   const updateTags = async (paletteTags: string[]) => {
     const userId = await currentUserId();
     if (!userId) {
@@ -212,9 +199,6 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
               ]}
               onPress={() => toggleTag(tag)}
               onLongPress={() => {
-                // Delete means gone — from the palette (persisted), from
-                // this log's own history if it's showing because of that,
-                // and deselected if it was applied to this log.
                 const nextPaletteTags = paletteTags.filter(t => t !== tag);
                 setPaletteTags(nextPaletteTags);
                 updateTags(nextPaletteTags);
@@ -244,9 +228,6 @@ const LogNewSessionScreen = ({ navigation, route }: AppScreenProps<'LogNewSessio
           text={'NEXT'}
           onPress={() => {
             if (isComplete()) {
-              // Spread the original log first so passthrough fields not
-              // tracked in local state (id, date, finalRating, notes) survive
-              // the edit — that id is what lets SubmitLog update in place.
               navigation.navigate('SubmitLog', {
                 log: {
                   ...(log || {}),

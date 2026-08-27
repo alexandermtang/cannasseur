@@ -22,7 +22,6 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
       return;
     }
 
-    // No navigate() here: onAuthStateChange in App.js swaps the stack.
     setIsLoading(false);
   };
 

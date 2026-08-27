@@ -1,8 +1,3 @@
-// The pure filter/sort/label logic behind Home's search, sort, and year
-// filters — kept dependency-free (no react/react-native imports) so it's
-// testable without pulling in the whole RN/Expo module graph, and reusable
-// outside the screen component.
-
 import type { Log } from '@/types/log';
 import type { SortType } from './homeFilters';
 
@@ -25,9 +20,6 @@ export const filterTextFor = (type: SortType): string => {
   return '';
 };
 
-// Phrasing for the empty state reads differently from the filter button's
-// own label — "ACTIVE MOOD" for a mood field, but just "INSOMNIA" (no
-// "MEDICAL" prefix) for a medical one.
 export const emptyStateLabelFor = (type: SortType): string => {
   if (isMoodField(type)) return `${type.toUpperCase()} MOOD`;
   if (isMedicalField(type)) return type.toUpperCase();
@@ -52,9 +44,6 @@ export const sortLogs = (logs: Log[], type: SortType): Log[] => {
     return sorted;
   }
   if (isMoodField(type) || isMedicalField(type)) {
-    // A 0 means that mood/medical effect wasn't rated at all for that log —
-    // filtering it out rather than just sorting it to the bottom, since
-    // "Mood: Happy" implies "logs rated for happiness," not "every log."
     return logs
       .filter(log => log[type] > 0)
       .sort(
@@ -76,7 +65,6 @@ export const searchLogs = (logs: Log[], searchText: string): Log[] => {
   );
 };
 
-// null means ALL TIME — no filtering.
 export const filterByYear = (logs: Log[], year: number | null): Log[] => {
   if (year === null) return logs;
   return logs.filter(log => log.date && new Date(log.date).getFullYear() === year);

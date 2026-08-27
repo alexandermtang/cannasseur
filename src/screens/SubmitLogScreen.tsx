@@ -16,8 +16,6 @@ export const submitLogScreenOptions = ({
   navigation,
   route
 }: AppScreenProps<'SubmitLog'>): NativeStackNavigationOptions => ({
-  // Editing an existing log shows its own date; moment(undefined) falls back
-  // to today, which is correct for a brand new session.
   title: moment(route.params?.log?.date).format('MM/DD/YYYY'),
   headerLeft: () => (
     <HeaderButton name={'chevron-back'} onPress={() => navigation.goBack()} />
@@ -45,7 +43,6 @@ const SubmitLogScreen = ({ navigation, route }: AppScreenProps<'SubmitLog'>) => 
 
     const row = toRow({ ...log, finalRating, notes, date: date || moment().format() }, userId);
 
-    // Editing an existing log updates that row; a new session inserts one.
     const { error } = log.id
       ? await supabase
           .from('logs')
@@ -60,9 +57,6 @@ const SubmitLogScreen = ({ navigation, route }: AppScreenProps<'SubmitLog'>) => 
     }
 
     setHasError(false);
-    // Reset (not navigate) so LogNewSession/SubmitLog are dropped from the
-    // stack — otherwise Home gets pushed on top and back just walks through
-    // duplicate date-titled screens instead of leaving the log book.
     navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
   };
 
