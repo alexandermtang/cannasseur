@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
 
 import PrimaryButton from '@/components/PrimaryButton';
@@ -8,7 +8,19 @@ import { consumeAccountDeleted } from '@/lib/accountDeletion';
 import type { AuthScreenProps } from '@/types/navigation';
 
 const SignUpLoginScreen = ({ navigation }: AuthScreenProps<'SignUpLogin'>) => {
-  const [accountDeleted] = useState(consumeAccountDeleted);
+  const [accountDeleted, setAccountDeleted] = useState(false);
+
+  useEffect(() => {
+    setAccountDeleted(consumeAccountDeleted());
+
+    // Re-check (and re-clear) on every focus, not just the first mount, so
+    // navigating to Login/ForgotPassword and back doesn't show it again -
+    // this screen stays mounted across that round trip.
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      setAccountDeleted(consumeAccountDeleted());
+    });
+    return unsubscribeFocus;
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
