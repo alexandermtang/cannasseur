@@ -28,7 +28,6 @@ const ProfileScreen = () => {
         return;
       }
 
-      // Email lives on the auth user, not on profiles — single source of truth.
       const [{ data: profile }, { data: userData }] = await Promise.all([
         supabase
           .from('profiles')
@@ -44,8 +43,6 @@ const ProfileScreen = () => {
   }, []);
 
   const logout = async () => {
-    // onAuthStateChange in App.js swaps back to the auth stack (and resets
-    // Home's filters, so the next account doesn't inherit this one's).
     await supabase.auth.signOut();
   };
 

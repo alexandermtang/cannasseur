@@ -101,8 +101,6 @@ describe('sortLogs', () => {
 
     const result = sortLogs([tiedLowRating, tiedOlder, tiedHighRating], 'sleepy');
 
-    // Same sleepy rating throughout — final rating (desc) wins first, then
-    // date (desc) breaks the remaining tie.
     expect(result).toEqual([tiedHighRating, tiedOlder, tiedLowRating]);
   });
 });

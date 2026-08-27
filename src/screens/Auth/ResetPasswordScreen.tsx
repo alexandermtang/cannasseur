@@ -1,8 +1,3 @@
-// DEAD CODE (for now): password reset went webpage-only, so nothing should
-// render this screen anymore. Kept in case the native in-app flow comes
-// back later. App.tsx still imports and can render it via
-// isPasswordRecovery, but nothing produces a cannasseur://reset-password
-// deep link anymore to trigger that path.
 import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TextInput } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -11,9 +6,6 @@ import PrimaryButton from '@/components/PrimaryButton';
 import { supabase } from '@/lib/supabase';
 
 interface ResetPasswordScreenProps {
-  // Called once the password is updated. The recovery session Supabase
-  // already established is a real session, so from here App.tsx just falls
-  // through to the normal signed-in stack - no separate login step.
   onComplete: () => void;
 }
 
@@ -87,9 +79,6 @@ const ResetPasswordScreen = ({ onComplete }: ResetPasswordScreenProps) => {
           onSubmit();
         }}
       />
-      {/* Matches the box LoginScreen's GO BACK button would occupy below LOG
-          IN - without it, this screen's shorter content re-centers and
-          UPDATE PASSWORD sits lower than LOG IN does. */}
       <View style={styles.backButtonSpacer} />
     </View>
   );

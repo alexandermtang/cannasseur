@@ -46,7 +46,7 @@ export const homeScreenOptions = ({
   )
 });
 
-const MODAL_ROW_HEIGHT = 56; // matches FilterButton and modalHeaderContainer
+const MODAL_ROW_HEIGHT = 56;
 const SEARCH_DEBOUNCE_MS = 200;
 
 const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
@@ -88,9 +88,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
     const logs = data.map(fromRow);
     setAllLogs(logs);
-    // Re-apply whatever search/sort/year was active — otherwise a refetch
-    // (e.g. on focus, after coming back from ViewLog) silently drops them
-    // back to unfiltered DB order.
     setFilteredLogs(sortLogs(searchLogs(filterByYear(logs, selectedYear), searchText), sortType));
     setIsLoading(false);
   }, [sortType, searchText, selectedYear]);
@@ -98,8 +95,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   useEffect(() => {
     getLogs();
 
-    // Replaces componentWillReceiveProps (removed in React 19) and the
-    // { forceUpdate: true } navigation param it keyed off.
     const unsubscribeFocus = navigation.addListener('focus', () => getLogs());
     return unsubscribeFocus;
   }, [navigation, getLogs]);
@@ -110,9 +105,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), text), sortType));
   };
 
-  // The text input updates immediately so typing feels responsive, but the
-  // actual filter (and, via getLogs' searchText dependency, a Supabase
-  // refetch) waits for a pause in typing rather than firing on every key.
   const onSearchInputChange = (text: string) => {
     setSearchInput(text);
     if (searchDebounceRef.current) {
@@ -129,7 +121,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     };
   }, []);
 
-  // `bottom` is a layout property, so this cannot run on the native driver.
   const animateSheet = (toValue: number, onComplete?: () => void) => {
     Animated.timing(bottomAnim, {
       toValue,
@@ -155,18 +146,12 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
     setSortType(type);
     setFilterText(filterTextFor(type));
     setHomeFilters({ sortType: type });
-    // Set immediately, not in the animation callback below — the modal's
-    // dark overlay covers the list for the whole slide-down regardless, but
-    // deferring this let sortType (and the empty-state label it drives)
-    // update a beat before filteredLogs did, flashing the new filter's empty
-    // state over the old filter's stale results.
     setFilteredLogs(sortLogs(searchLogs(filterByYear(allLogs, selectedYear), searchText), type));
     animateSheet(-600, () => {
       setShowModal(false);
     });
   };
 
-  // `bottom` is a layout property, so this cannot run on the native driver.
   const animateYearSheet = (toValue: number, onComplete?: () => void) => {
     Animated.timing(yearBottomAnim, {
       toValue,
@@ -190,8 +175,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   const selectYear = (year: number | null) => {
     setSelectedYear(year);
-    // Changing the year always resets sort back to Most Recent — the
-    // search term is unaffected.
     setSortType('mostRecent');
     setFilterText(filterTextFor('mostRecent'));
     setHomeFilters({ selectedYear: year, sortType: 'mostRecent' });
@@ -213,8 +196,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // Only worth offering when there's actually more than one year to
-      // choose between.
       headerLeft:
         availableYears.length > 1
           ? () => (
@@ -226,10 +207,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
             )
           : undefined
     });
-    // The icon itself never changes shape, but showYearFilterModal closes
-    // over showModal (to close Filter Options first if it's open) — this
-    // still needs to re-run when that changes, or the header button's
-    // onPress stays frozen on showModal's value from the very first render.
   }, [navigation, showModal, availableYears.length]);
 
   useLayoutEffect(() => {
@@ -239,18 +216,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   }, [navigation, selectedYear]);
 
   useEffect(() => {
-    // Gated on !isLoading — allLogs (and so availableYears) starts empty on
-    // every fresh mount until getLogs() resolves, which made this fire
-    // spuriously on mount and immediately clear a just-restored year filter
-    // before the real data even loaded.
-    //
-    // The log book can collapse to a single year after this filter was
-    // already applied (e.g. deleting every other year's logs while
-    // filtered) — the icon that would let the user clear it just
-    // disappeared above, so clear it here instead of leaving them stuck.
-    // Deliberately not selectYear(null): this is an automatic cleanup
-    // reacting to deleted logs, not a real year change, so it shouldn't
-    // also reset an unrelated sort filter the user never touched.
     if (!isLoading && availableYears.length <= 1 && selectedYear !== null) {
       setSelectedYear(null);
       setHomeFilters({ selectedYear: null });
@@ -267,9 +232,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
   filterByYear(allLogs, selectedYear).forEach(log => strainsSet.add(log.strain));
   const numStrains = strainsSet.size;
 
-  // ALL TIME row + one row per year + the modal's own header row, capped at
-  // the same max height Filter Options uses (60% of the screen) — shorter
-  // when there aren't enough years to need it.
   const yearModalHeight = Math.min(
     MODAL_ROW_HEIGHT * (availableYears.length + 2),
     windowHeight * 0.6
@@ -353,9 +315,6 @@ const HomeScreen = ({ navigation }: AppScreenProps<'Home'>) => {
         </View>
       </View>
       {(showModal || showYearModal) && (
-        // Shared across both modals so it stays mounted continuously through
-        // a Filter Options <-> Select Year transition — two separate copies
-        // (one per modal) would briefly stack and read as doubly dark.
         <TouchableHighlight
           style={styles.top}
           onPress={() => {

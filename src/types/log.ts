@@ -1,7 +1,5 @@
 export type LogKind = 'Flower' | 'Concentrate';
 
-// The screens speak this shape (`date`, `finalRating`) — see src/lib/logs.ts
-// for the mapping to/from the Postgres row shape.
 export interface Log {
   id?: string;
   date?: string;
