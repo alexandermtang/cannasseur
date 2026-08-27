@@ -8,7 +8,7 @@ import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
 import type { AppScreenProps } from '@/types/navigation';
 
-export const meScreenOptions = ({
+export const profileScreenOptions = ({
   navigation
 }: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
   title: 'PROFILE',
@@ -17,7 +17,7 @@ export const meScreenOptions = ({
   )
 });
 
-const MeScreen = () => {
+const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
@@ -98,4 +98,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default MeScreen;
+export default ProfileScreen;

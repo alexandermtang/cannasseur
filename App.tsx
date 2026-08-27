@@ -27,7 +27,7 @@ import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
 // import ResetPasswordScreen from './src/screens/Auth/ResetPasswordScreen';
 
 import HomeScreen, { homeScreenOptions } from './src/screens/HomeScreen';
-import MeScreen, { meScreenOptions } from './src/screens/MeScreen';
+import ProfileScreen, { profileScreenOptions } from './src/screens/ProfileScreen';
 import LogNewSessionScreen, {
   logNewSessionScreenOptions
 } from './src/screens/LogNewSessionScreen';
@@ -73,7 +73,7 @@ const AuthStack = () => (
 const AppStack = () => (
   <AppStackNavigator.Navigator initialRouteName={'Home'} screenOptions={appScreenOptions}>
     <AppStackNavigator.Screen name={'Home'} component={HomeScreen} options={homeScreenOptions} />
-    <AppStackNavigator.Screen name={'Me'} component={MeScreen} options={meScreenOptions} />
+    <AppStackNavigator.Screen name={'Me'} component={ProfileScreen} options={profileScreenOptions} />
     <AppStackNavigator.Screen
       name={'LogNewSession'}
       component={LogNewSessionScreen}
