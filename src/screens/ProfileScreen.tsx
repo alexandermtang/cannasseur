@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Dialog from 'react-native-dialog';
-import Spinner from 'react-native-loading-spinner-overlay';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@/components/PrimaryButton';
@@ -10,8 +9,6 @@ import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
 import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
-
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const profileScreenOptions = ({
   navigation
@@ -27,7 +24,6 @@ const ProfileScreen = () => {
   const [email, setEmail] = useState('');
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [deleteError, setDeleteError] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -55,12 +51,9 @@ const ProfileScreen = () => {
   };
 
   const deleteAccount = async () => {
-    setIsDeleting(true);
-
-    const [{ error }] = await Promise.all([supabase.rpc('delete_user'), wait(1000)]);
+    const { error } = await supabase.rpc('delete_user');
 
     if (error) {
-      setIsDeleting(false);
       setDeleteError('Could not delete account. Please try again.');
       return;
     }
@@ -71,11 +64,6 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Spinner
-        visible={isDeleting}
-        textContent={'Deleting account...'}
-        textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
-      />
       <Text style={styles.text}>{name}</Text>
       <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
       <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
@@ -96,7 +84,7 @@ const ProfileScreen = () => {
           color="#f00"
           onPress={() => {
             setDeleteDialogVisible(false);
-            setTimeout(() => deleteAccount(), 300);
+            deleteAccount();
           }}
         />
       </Dialog.Container>
