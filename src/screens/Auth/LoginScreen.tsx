@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { Ionicons } from '@expo/vector-icons';
 
 import PrimaryButton from '@/components/PrimaryButton';
 import TertiaryButton from '@/components/TertiaryButton';
@@ -12,6 +13,7 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const onPress = async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -44,16 +46,25 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
           }}
           style={styles.input}
         />
-        <TextInput
-          autoCapitalize={'none'}
-          placeholder={'password'}
-          onChangeText={password => {
-            setPassword(password);
-            setError('');
-          }}
-          style={styles.input}
-          secureTextEntry
-        />
+        <View style={styles.passwordWrapper}>
+          <TextInput
+            autoCapitalize={'none'}
+            placeholder={'password'}
+            onChangeText={password => {
+              setPassword(password);
+              setError('');
+            }}
+            style={[styles.input, styles.passwordInput]}
+            secureTextEntry={!passwordVisible}
+          />
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(visible => !visible)}
+            hitSlop={12}
+            style={styles.passwordToggle}
+          >
+            <Ionicons name={passwordVisible ? 'eye-off-outline' : 'eye-outline'} size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.error}>{error}</Text>
       <PrimaryButton
@@ -110,6 +121,16 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderBottomWidth: 1,
     padding: 8
+  },
+  passwordWrapper: {
+    justifyContent: 'center'
+  },
+  passwordInput: {
+    paddingRight: 36
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 8
   },
   error: {
     fontSize: 16,

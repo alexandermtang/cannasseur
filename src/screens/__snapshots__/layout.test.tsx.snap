@@ -120,7 +120,10 @@ exports[`LoginScreen layout 1`] = `
   <Text "cannasseur" {bottom:16, fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
   <View {width:"80%"}>
     <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
-    <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
+    <View {justifyContent:"center"}>
+      <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8, paddingRight:36}>
+      <View {opacity:1, position:"absolute", right:8}>
+        <Ionicons {}>
   <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>
   <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"80%"}>
     <Text "LOG IN" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
@@ -131,10 +134,10 @@ exports[`LoginScreen layout 1`] = `
 exports[`ProfileScreen layout 1`] = `
 "<View {alignItems:"center", backgroundColor:"#FFF", height:"100%", justifyContent:"center", padding:32, width:"100%"}>
   <Text "n" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:16}>
-  <Text "a@b.c" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:64}>
+  <Text "a@b.c" {fontFamily:"PlayfairDisplay-Regular", fontSize:24, height:32, marginBottom:32}>
   <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"100%"}>
     <Text "LOG OUT" {color:"#FFF", fontFamily:"WorkSans", fontSize:16}>
-  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:64, opacity:1, width:"100%"}>
+  <View {alignItems:"center", height:48, justifyContent:"center", marginTop:320, opacity:1, width:"100%"}>
     <Text "DELETE ACCOUNT" {color:"#000", fontFamily:"WorkSans", fontSize:16}>
   <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>"
 `;

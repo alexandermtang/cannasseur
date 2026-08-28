@@ -11,6 +11,10 @@ import { supabase, currentUserId } from '@/lib/supabase';
 import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
 
+const DialogContainer = Dialog.Container as React.ComponentType<
+  React.ComponentProps<typeof Dialog.Container> & { onHide?: () => void }
+>;
+
 export const profileScreenOptions = ({
   navigation
 }: AppScreenProps<'Me'>): NativeStackNavigationOptions => ({
@@ -87,7 +91,7 @@ const ProfileScreen = () => {
         text={'DELETE ACCOUNT'}
       />
       <Text style={styles.error}>{deleteError}</Text>
-      <Dialog.Container
+      <DialogContainer
         visible={deleteDialogVisible}
         onHide={() => {
           if (pendingDeleteRef.current) {
@@ -106,7 +110,7 @@ const ProfileScreen = () => {
             setDeleteDialogVisible(false);
           }}
         />
-      </Dialog.Container>
+      </DialogContainer>
     </View>
   );
 };
