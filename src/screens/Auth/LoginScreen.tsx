@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { Ionicons } from '@expo/vector-icons';
 
 import PrimaryButton from '@/components/PrimaryButton';
 import TertiaryButton from '@/components/TertiaryButton';
@@ -12,6 +13,7 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const onPress = async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -44,16 +46,27 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
           }}
           style={styles.input}
         />
-        <TextInput
-          autoCapitalize={'none'}
-          placeholder={'password'}
-          onChangeText={password => {
-            setPassword(password);
-            setError('');
-          }}
-          style={styles.input}
-          secureTextEntry
-        />
+        <View>
+          <TextInput
+            key={passwordVisible ? 'visible' : 'hidden'}
+            autoCapitalize={'none'}
+            placeholder={'password'}
+            defaultValue={password}
+            onChangeText={password => {
+              setPassword(password);
+              setError('');
+            }}
+            style={[styles.input, styles.passwordInput]}
+            secureTextEntry={!passwordVisible}
+          />
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(visible => !visible)}
+            hitSlop={12}
+            style={styles.passwordToggle}
+          >
+            <Ionicons name={passwordVisible ? 'eye-off-outline' : 'eye-outline'} size={24} />
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.error}>{error}</Text>
       <PrimaryButton
@@ -110,6 +123,17 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderBottomWidth: 1,
     padding: 8
+  },
+  passwordInput: {
+    paddingRight: 36
+  },
+  passwordToggle: {
+    position: 'absolute',
+    top: 0,
+    bottom: 8,
+    right: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   error: {
     fontSize: 16,
