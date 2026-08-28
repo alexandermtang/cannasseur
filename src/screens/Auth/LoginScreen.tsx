@@ -48,9 +48,10 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
         />
         <View>
           <TextInput
+            key={passwordVisible ? 'visible' : 'hidden'}
             autoCapitalize={'none'}
             placeholder={'password'}
-            value={password}
+            defaultValue={password}
             onChangeText={password => {
               setPassword(password);
               setError('');
