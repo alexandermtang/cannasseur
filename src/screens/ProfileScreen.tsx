@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Dialog from 'react-native-dialog';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import PrimaryButton from '@/components/PrimaryButton';
 import TertiaryButton from '@/components/TertiaryButton';
@@ -9,6 +10,10 @@ import HeaderButton from '@/components/HeaderButton';
 import { supabase, currentUserId } from '@/lib/supabase';
 import { markAccountDeleted } from '@/lib/accountDeletion';
 import type { AppScreenProps } from '@/types/navigation';
+
+const DialogContainer = Dialog.Container as React.ComponentType<
+  React.ComponentProps<typeof Dialog.Container> & { onHide?: () => void }
+>;
 
 export const profileScreenOptions = ({
   navigation
@@ -24,6 +29,8 @@ const ProfileScreen = () => {
   const [email, setEmail] = useState('');
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const pendingDeleteRef = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -51,9 +58,12 @@ const ProfileScreen = () => {
   };
 
   const deleteAccount = async () => {
+    setIsDeleting(true);
+
     const { error } = await supabase.rpc('delete_user');
 
     if (error) {
+      setIsDeleting(false);
       setDeleteError('Could not delete account. Please try again.');
       return;
     }
@@ -64,8 +74,13 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Spinner
+        visible={isDeleting}
+        textContent={'Deleting account...'}
+        textStyle={{ color: '#FFF', fontFamily: 'PlayfairDisplay-Regular' }}
+      />
       <Text style={styles.text}>{name}</Text>
-      <Text style={[styles.text, { marginBottom: 64 }]}>{email}</Text>
+      <Text style={[styles.text, { marginBottom: 32 }]}>{email}</Text>
       <PrimaryButton style={styles.button} onPress={() => logout()} text={'LOG OUT'} />
       <TertiaryButton
         style={styles.deleteButton}
@@ -76,18 +91,26 @@ const ProfileScreen = () => {
         text={'DELETE ACCOUNT'}
       />
       <Text style={styles.error}>{deleteError}</Text>
-      <Dialog.Container visible={deleteDialogVisible}>
+      <DialogContainer
+        visible={deleteDialogVisible}
+        onHide={() => {
+          if (pendingDeleteRef.current) {
+            pendingDeleteRef.current = false;
+            deleteAccount();
+          }
+        }}
+      >
         <Dialog.Title>Are you sure you want to delete your account?</Dialog.Title>
         <Dialog.Button label="Cancel" onPress={() => setDeleteDialogVisible(false)} />
         <Dialog.Button
           label="Delete"
           color="#f00"
           onPress={() => {
+            pendingDeleteRef.current = true;
             setDeleteDialogVisible(false);
-            deleteAccount();
           }}
         />
-      </Dialog.Container>
+      </DialogContainer>
     </View>
   );
 };
@@ -112,7 +135,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     width: '100%',
-    marginTop: 64
+    marginTop: 320
   },
   error: {
     fontSize: 16,
