@@ -46,10 +46,11 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
           }}
           style={styles.input}
         />
-        <View style={styles.passwordWrapper}>
+        <View>
           <TextInput
             autoCapitalize={'none'}
             placeholder={'password'}
+            value={password}
             onChangeText={password => {
               setPassword(password);
               setError('');
@@ -62,7 +63,7 @@ const LoginScreen = ({ navigation }: AuthScreenProps<'Login'>) => {
             hitSlop={12}
             style={styles.passwordToggle}
           >
-            <Ionicons name={passwordVisible ? 'eye-off-outline' : 'eye-outline'} size={20} />
+            <Ionicons name={passwordVisible ? 'eye-off-outline' : 'eye-outline'} size={24} />
           </TouchableOpacity>
         </View>
       </View>
@@ -122,15 +123,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     padding: 8
   },
-  passwordWrapper: {
-    justifyContent: 'center'
-  },
   passwordInput: {
     paddingRight: 36
   },
   passwordToggle: {
     position: 'absolute',
-    right: 8
+    top: 0,
+    bottom: 8,
+    right: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   error: {
     fontSize: 16,

@@ -120,9 +120,9 @@ exports[`LoginScreen layout 1`] = `
   <Text "cannasseur" {bottom:16, fontFamily:"PlayfairDisplay-Italic", fontSize:40}>
   <View {width:"80%"}>
     <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8}>
-    <View {justifyContent:"center"}>
+    <View {}>
       <TextInput {borderBottomWidth:1, borderColor:"#000", fontFamily:"PlayfairDisplay-Regular", fontSize:20, marginBottom:8, padding:8, paddingRight:36}>
-      <View {opacity:1, position:"absolute", right:8}>
+      <View {alignItems:"center", bottom:8, justifyContent:"center", opacity:1, position:"absolute", right:8, top:0}>
         <Ionicons {}>
   <Text {color:"#f00", fontFamily:"WorkSans", fontSize:16, height:24}>
   <View {alignItems:"center", backgroundColor:"#000", borderRadius:8, height:48, justifyContent:"center", opacity:1, width:"80%"}>
