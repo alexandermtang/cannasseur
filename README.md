@@ -2,7 +2,7 @@
 
 Become your own cannabis expert.
 
-www.cannasseur.app | apps.apple.com/app/id1435839791
+www.cannasseur.app | https://apps.apple.com/us/app/cannasseur/id1435839791
 
 <p align="center">
   <img src="docs/screenshots/signup-login.jpeg" width="30%" alt="Sign up / log in landing screen" />
